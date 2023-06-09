@@ -1,8 +1,8 @@
 # Yandex Music RPC Lite
 
-![image](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/assets/62742200/a8c4a770-993b-4f6b-ae7f-352ad1153ef1)
+![image](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/assets/62742200/ddeb9d2f-c3a4-433d-a2e8-fe048f26d102)
 
-![image](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/assets/62742200/97ccfdf0-36f5-4c63-be83-8ece49b40d3a)
+![image](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/assets/62742200/bd514559-2904-4cbf-a605-e71cce814bf2)
 
 - Оригинальный код: https://zelenka.guru/threads/4728759
 - Версия с интерфейсом и возможностью сворачивать в трей от иного автора: https://github.com/KycTik31/YMD-plus/

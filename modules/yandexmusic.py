@@ -54,4 +54,4 @@ class MYAPI:
         last_track = last_track_id.fetch_track()
         duration_min = str((last_track.duration_ms // (1000 * 60)) % 60)
         duration_sec = str((last_track.duration_ms // 1000) % 60)
-        return f"{duration_min}:{duration_sec}"
+        return f"{duration_min}:{duration_sec:0>2}"

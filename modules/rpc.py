@@ -23,5 +23,6 @@ class MRPC:
             large_image=image_link,
             small_image="https://github.com/maj0roff/YandexMusicDiscordRPC/blob/main/logo.png?raw=true",
             small_text=f"Длинна: {song_time}",
-            start=timerpc
+            start=timerpc,
+            buttons=[{"label": "Слушать", "url": f"{song_link}"}]
         )

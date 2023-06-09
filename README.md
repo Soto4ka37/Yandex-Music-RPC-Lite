@@ -5,7 +5,7 @@
 ![image](https://media.discordapp.net/attachments/977852442974752789/1116741801332707419/244721713-bd514559-2904-4cbf-a605-e71cce814bf2.png)
 
 - Оригинальный код: https://zelenka.guru/threads/4728759
-- Версия с интерфейсом и возможностью скрыть в трей от иного автора: https://github.com/KycTik31/YMD-plus/
+- Версия с интерфейсом и возможностью свернуть в трей от иного автора: https://github.com/KycTik31/YMD-plus/
 
 # Требования
 - Python 3.10+

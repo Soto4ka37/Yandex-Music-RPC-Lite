@@ -1,8 +1,9 @@
 # Yandex Music RPC Lite
-- Оригинальный код: https://zelenka.guru/threads/4728759
-- Версия с интерфейсом и возможностью сворачивать в трей от иного автора: https://github.com/KycTik31/YMD-plus/
 
 ![image](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/assets/62742200/a8c4a770-993b-4f6b-ae7f-352ad1153ef1)
+
+- Оригинальный код: https://zelenka.guru/threads/4728759
+- Версия с интерфейсом и возможностью сворачивать в трей от иного автора: https://github.com/KycTik31/YMD-plus/
 
 # Требования
 - Python 3.10+

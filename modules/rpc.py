@@ -15,14 +15,14 @@ class MRPC:
             details='Неизвестно или "Моя волна"',
             large_image="https://github.com/maj0roff/YandexMusicDiscordRPC/blob/main/logo.png?raw=true",
         )
-    def updatePresence(aritst, song, image_link, song_link, song_time):
-        timerpc = int(time.time())
+    def updatePresence(song):
+        start_time = int(time.time())
         dRPC.update(
-            details=f'{song}',
-            state=f'от {aritst}', 
-            large_image=image_link,
+            details=f'{song[0]}',
+            state=f'от {song[1]}', 
+            large_image=song[4],
             small_image="https://github.com/maj0roff/YandexMusicDiscordRPC/blob/main/logo.png?raw=true",
-            small_text=f"Длинна: {song_time}",
-            start=timerpc,
-            buttons=[{"label": "Слушать", "url": f"{song_link}"}]
+            small_text=f"Длинна: {song[5]}",
+            start=start_time,
+            buttons=[{"label": "Слушать", "url": f"{song[2]}"}]
         )

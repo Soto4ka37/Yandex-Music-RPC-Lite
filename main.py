@@ -25,25 +25,18 @@ def app():
     lasttrack = 0
     while True:
         try:
-            songid = MYAPI.songID()
-            artist = MYAPI.songArtist()
-            song = MYAPI.songTitle()
-            image_link = MYAPI.songImage()
-            song_link = MYAPI.songLink()
-            song_time = MYAPI.songTime()
-            if songid != lasttrack:
-                lasttrack = songid
+            song = MYAPI.song()
+            if song[3] != lasttrack:
+                lasttrack = song[3]
                 switch = 1
             if switch == 1:
                 switch = 0
+                MRPC.updatePresence(song)
                 now_time = datetime.datetime.now()
-                print(f'[RPC] [{now_time.strftime("%d.%m.%Y %H:%M:%S")}] {artist} - {song}')
-                MRPC.updatePresence(artist, song, image_link, song_link, song_time)
+                print(f'[RPC] [{now_time.strftime("%d.%m.%Y %H:%M:%S")}] {song[1]} - {song[0]}')
         except Exception as e:
-            now_time = datetime.datetime.now()
-            #print(f'[RPC] [{now_time.strftime("%d.%m.%Y %H:%M:%S")}] Неизвестно')
             MRPC.mywavePresence()            
-        time.sleep(0.1)
+        time.sleep(1)
 
 if __name__ == "__main__":
     t1 = Thread(target=app)

@@ -15,43 +15,22 @@ if len(config.get("main","yandexmusictoken")) <= 2:
     
     client = Client(config.get("main", "yandexmusictoken")).init()
 else:
-    print("[RPC] Успешный запуск")
+    print("[RPC] Токен получен и сохранён в config.ini. Успешный запуск")
     client = Client(config.get("main", "yandexmusictoken")).init()
 
 class MYAPI:
-    def songTitle():
+    def song():
         lQ = client.queue(client.queues_list()[0].id)
         last_track_id = lQ.get_current_track()
         last_track = last_track_id.fetch_track()
-        return last_track.title
-
-    def songArtist():
-        lQ = client.queue(client.queues_list()[0].id)
-        lQid = lQ.get_current_track()
-        last_track = lQid.fetch_track()
-        return ', '.join(last_track.artists_name())
-    
-    def songLink():
-        lQ = client.queue(client.queues_list()[0].id)
-        lQid = lQ.get_current_track()
-        lQlt = lQid.fetch_track()
-        return f"https://music.yandex.ru/album/{lQlt['albums'][0]['id']}/track/{lQlt['id']}/"
-        
-    def songID():
-        lQ = client.queue(client.queues_list()[0].id)
-        return lQ.get_current_track()
-
-    def songImage():
-        queues = client.queues_list()
-        lQ = client.queue(queues[0].id)
-        lQid = lQ.get_current_track()
-        lQlt = lQid.fetch_track()
-        return "https://" + lQlt.cover_uri.replace("%%", "200x200")
-
-    def songTime():
-        track_id = client.queue(client.queues_list()[0].id)
-        last_track_id = track_id.get_current_track()
-        last_track = last_track_id.fetch_track()
+        lQlt = last_track_id.fetch_track()
         duration_min = str((last_track.duration_ms // (1000 * 60)) % 60)
         duration_sec = str((last_track.duration_ms // 1000) % 60)
-        return f"{duration_min}:{duration_sec:0>2}"
+        return last_track.title, ', '.join(last_track.artists_name()), f"https://music.yandex.ru/album/{lQlt['albums'][0]['id']}/track/{lQlt['id']}/", lQ.get_current_track(), "https://" + lQlt.cover_uri.replace("%%", "200x200"), f"{duration_min}:{duration_sec:0>2}"
+
+    # song[0] - Название трека
+    # song[1] - Автор трека
+    # song[2] - Ссылка на трек
+    # song[3] - ID трека
+    # song[4] - Картинка трека
+    # song[5] - Длинна трека

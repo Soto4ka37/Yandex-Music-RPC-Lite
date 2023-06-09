@@ -2,7 +2,7 @@
 
 ![image](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/assets/62742200/a8c4a770-993b-4f6b-ae7f-352ad1153ef1)
 
-![image](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/assets/62742200/0e31a45a-5832-4f91-a90d-855f927fc316)
+![image](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/assets/62742200/9ddfbad4-5cba-471f-a69f-e4c65981d8d6)
 
 - Оригинальный код: https://zelenka.guru/threads/4728759
 - Версия с интерфейсом и возможностью сворачивать в трей от иного автора: https://github.com/KycTik31/YMD-plus/

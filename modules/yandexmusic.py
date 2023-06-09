@@ -9,13 +9,13 @@ config.read('info/config.ini')
 if len(config.get("main","yandexmusictoken")) <= 2:
     print("[RPC] Получение токена.. Войдите в аккаунт в открывшимся окне")
     config.set("main", "yandexmusictoken", token.get_token())
-    print("[RPC] Успешный запуск")
+    print("[RPC] Токен получен и сохранён в config.ini.")
     with open("info/config.ini", "w") as config_file:
         config.write(config_file)
     
     client = Client(config.get("main", "yandexmusictoken")).init()
 else:
-    print("[RPC] Токен получен и сохранён в config.ini. Успешный запуск")
+    print("[RPC] Успешный запуск")
     client = Client(config.get("main", "yandexmusictoken")).init()
 
 class MYAPI:

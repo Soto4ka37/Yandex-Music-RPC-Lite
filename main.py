@@ -38,7 +38,7 @@ def app():
                 switch = 0
                 afk = 0
                 MRPC.update(song)
-                print(f'[RPC] [Длинна: {song[5]}:{song[6]}] {song[1]} - {song[0]}')
+                print(f'[RPC] Смена трека: {song[1]} - {song[0]} ({song[5]}:{song[6]:0>2})')
                 lastupdate = datetime.datetime.now()
             else:
                 time_repeat = (datetime.datetime.now() - lastupdate).total_seconds()
@@ -46,6 +46,8 @@ def app():
                 if time_repeat > song[7] and repeat == 0:
                     MRPC.repeat(song)
                     repeat = 1
+                    print('[RPC] Переключено в режим "Повтор трека" до последующей смены трека')
+
         except Exception as e:
             MRPC.mywavePresence()            
         time.sleep(1)

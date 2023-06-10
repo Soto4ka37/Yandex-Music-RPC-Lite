@@ -20,9 +20,14 @@ from modules.rpc import MRPC
 from modules.yandexmusic import MYAPI
 from threading import Thread
 
+lasttrack = 0
+lastupdate = datetime.datetime.now()
+
 def app():
     switch = 0
+    time_repeat = 0
     lasttrack = 0
+    repeat = 0
     while True:
         try:
             song = MYAPI.song()
@@ -31,9 +36,16 @@ def app():
                 switch = 1
             if switch == 1:
                 switch = 0
-                MRPC.updatePresence(song)
-                now_time = datetime.datetime.now()
-                print(f'[RPC] [{now_time.strftime("%d.%m.%Y %H:%M:%S")}] {song[1]} - {song[0]}')
+                afk = 0
+                MRPC.update(song)
+                print(f'[RPC] [Длинна: {song[5]}:{song[6]}] {song[1]} - {song[0]}')
+                lastupdate = datetime.datetime.now()
+            else:
+                time_repeat = (datetime.datetime.now() - lastupdate).total_seconds()
+                #print(f'RepeatMode: {time_repeat}/{song[7]}')
+                if time_repeat > song[7] and repeat == 0:
+                    MRPC.repeat(song)
+                    repeat = 1
         except Exception as e:
             MRPC.mywavePresence()            
         time.sleep(1)

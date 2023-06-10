@@ -1,7 +1,8 @@
 # Yandex Music RPC Lite
+![image](https://cdn.discordapp.com/attachments/1117022431748554782/1117050058790146088/image.png)
+
 ![image](https://media.discordapp.net/attachments/1117022431748554782/1117042838404862012/image.png)
 ![image](https://media.discordapp.net/attachments/1117022431748554782/1117042482841141258/image.png)
-![image](https://cdn.discordapp.com/attachments/1117022431748554782/1117050058790146088/image.png)
 
 - Автор идеи: https://zelenka.guru/threads/4728759
 - Версия с интерфейсом и возможностью свернуть в трей от иного автора: https://github.com/KycTik31/YMD-plus/

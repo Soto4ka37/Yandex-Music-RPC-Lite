@@ -36,7 +36,7 @@ def app():
                 switch = 1
             if switch == 1:
                 switch = 0
-                afk = 0
+                repeat = 0
                 MRPC.update(song)
                 print(f'[RPC] Смена трека: {song[1]} - {song[0]} ({song[5]}:{song[6]:0>2})')
                 lastupdate = datetime.datetime.now()

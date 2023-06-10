@@ -12,7 +12,7 @@ class MRPC:
     def mywavePresence():
         dRPC.update(
             details='Неизвестно или "Моя волна"',
-            large_image="https://cdn.discordapp.com/attachments/1117022431748554782/1117022461045772379/logo.png",
+            large_image="https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/blob/master/assets/logo.png?raw=true",
             large_text="Yandex Music RPC Lite by Soto4ka37"
         )
     def repeat(song):
@@ -20,7 +20,7 @@ class MRPC:
             details=f'{song[0]}',
             state=f'{song[1]}', 
             large_image=song[4],
-            small_image="https://cdn.discordapp.com/attachments/1117022431748554782/1117022460739584020/repeat.png",
+            small_image="https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/blob/master/assets/repeat.png?raw=true",
             large_text=f"{song[0]} [{song[5]}:{song[6]:0>2}]",
             small_text=f'Повтор трека: ВКЛ',
             buttons=[{"label": "Слушать", "url": f"{song[2]}"}],
@@ -31,7 +31,7 @@ class MRPC:
             details=f'{song[0]}',
             state=f'{song[1]}', 
             large_image=song[4],
-            small_image="https://cdn.discordapp.com/attachments/1117022431748554782/1117022461045772379/logo.png",
+            small_image="https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/blob/master/assets/logo.png?raw=true",
             large_text=f"{song[0]} [{song[5]}:{song[6]:0>2}]",
             small_text=f'Длинна трека: {song[5]}:{song[6]:0>2}',
             end=end_time,

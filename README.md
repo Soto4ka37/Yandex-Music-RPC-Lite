@@ -1,19 +1,23 @@
 # Yandex Music RPC Lite
+![image](https://media.discordapp.net/attachments/1117022431748554782/1117042838404862012/image.png)
+![image](https://media.discordapp.net/attachments/1117022431748554782/1117042482841141258/image.png)
+![image](https://cdn.discordapp.com/attachments/1117022431748554782/1117050058790146088/image.png)
 
-![image](https://media.discordapp.net/attachments/977852442974752789/1116741801575972944/244721363-ddeb9d2f-c3a4-433d-a2e8-fe048f26d102.png)
-
-![image](https://media.discordapp.net/attachments/977852442974752789/1116741801332707419/244721713-bd514559-2904-4cbf-a605-e71cce814bf2.png)
-
-- Оригинальный код: https://zelenka.guru/threads/4728759
+- Автор идеи: https://zelenka.guru/threads/4728759
 - Версия с интерфейсом и возможностью свернуть в трей от иного автора: https://github.com/KycTik31/YMD-plus/
 
 # Требования
 - Python 3.10+
 - Google Chrome
 - Discord
+# Установка
+- Скачиваем архив Yandex-Music-RPC-Lite.zip
+- Распаковываем в любую папку
+- Запускаем файл main.py
+- Входим в аккаунт для получения токена
+- Скрипт запущен
 # Использование
 - Запускаем файл main.py
-- Входим в аккаунт для получения токена (Только при первом запуске)
 - Скрипт запущен
 - Можно оставить скрипт запущенным на ПК и слушать музыку с телефона
 - Чтобы музыка больше не отображалась просто закрываем консоль

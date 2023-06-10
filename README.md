@@ -1,4 +1,6 @@
 # Yandex Music RPC Lite
+P.S. Из-за ограничений API отоброжение времени трека не зависит от положения вашего плеера, если вы поставите трек на паузу RPC продолжит работать "проигнорировав" это.
+
 ![image](https://cdn.discordapp.com/attachments/1117022431748554782/1117050058790146088/image.png)
 
 ![image](https://media.discordapp.net/attachments/1117022431748554782/1117042838404862012/image.png)

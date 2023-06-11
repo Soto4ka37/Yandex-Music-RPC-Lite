@@ -15,7 +15,6 @@ if len(config.get("main","yandexmusictoken")) <= 2:
     
     client = Client(config.get("main", "yandexmusictoken")).init()
 else:
-    print("[RPC] Успешный запуск")
     client = Client(config.get("main", "yandexmusictoken")).init()
 
 class MYAPI:

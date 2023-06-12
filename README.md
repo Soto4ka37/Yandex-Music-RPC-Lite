@@ -10,11 +10,12 @@
 - Если вы используете приложение яндекс музыки из Microsoft Store советую этот скрирпт https://github.com/KycTik31/YMD-plus/
 
 # Требования
-- Python 3.10+ (Должна стоять галочка Add To Path при установке) 
+- [Python 3.10+](https://www.python.org/downloads/) (Должна стоять галочка Add To Path при установке) 
 - Google Chrome (Нужен для получения токена)
+> [Как получить токен вручную?](https://yandex-music.readthedocs.io/en/main/token.html)
 - Discord
 # Установка
-- Скачиваем архив RPC.zip
+- Скачиваем архив [RPC.zip](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/releases/download/v2/RPC.zip)
 - Распаковываем в любую папку
 - Запускаем файл main.py
 - Входим в аккаунт для получения токена

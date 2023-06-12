@@ -7,7 +7,7 @@
 ![image](https://media.discordapp.net/attachments/1117022431748554782/1117042482841141258/image.png)
 
 - Автор идеи: https://zelenka.guru/threads/4728759
-- Версия с интерфейсом и возможностью свернуть в трей от иного автора: https://github.com/KycTik31/YMD-plus/
+- Если вы используете приложение яндекс музыки из Microsoft Store советую этот скрирпт https://github.com/KycTik31/YMD-plus/
 
 # Требования
 - Python 3.10+

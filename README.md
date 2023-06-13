@@ -23,7 +23,7 @@
 - Google Chrome (Нужен для получения токена)
 - Discord
 # Установка python версии
-- Скачиваем архив [app_python_v3.zip](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/releases/download/v3/app_python_v3.rar)
+- Скачиваем архив [app_python_v3.rar](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/releases/download/v3/app_python_v3.rar)
 - Распаковываем в любую папку
 - Запускаем файл RPC.exe
 - Входим в аккаунт для получения токена (Только при первом запуске)

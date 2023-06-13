@@ -25,8 +25,7 @@ class MRPC:
             end=end_time,
             buttons=[{"label": "Слушать", "url": f"{song[2]}"}]
         )
-    def repeat2(song):
-        repeat_time = int(datetime.datetime.now().timestamp())
+    def repeat2(song, lastupdatetimestamp):
         dRPC.update(
             details=f'{song[0]:0>2}',
             state=f'{song[1]:0>2}', 
@@ -35,7 +34,7 @@ class MRPC:
             large_text=f"{song[0]} [{song[5]}:{song[6]:0>2}]",
             small_text=f'Трек повторяется',
             buttons=[{"label": "Слушать", "url": f"{song[2]}"}],
-            start=repeat_time,
+            start=lastupdatetimestamp,
         )
     def repeat1(song):
         end_time = int((datetime.datetime.now() + datetime.timedelta(minutes=song[5], seconds=song[6])).timestamp())

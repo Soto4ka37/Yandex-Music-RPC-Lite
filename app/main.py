@@ -19,8 +19,6 @@ if mode == "1":
     print('Скрипт запущен в первом режиме повтора (Подробнее в папке info)')
 if mode == "2":
     print('Скрипт запущен во втором режиме повтора (Подробнее в папке info)')
-lasttrack = 0
-lastupdate = datetime.datetime.now()
 
 def app():
     switch = 0

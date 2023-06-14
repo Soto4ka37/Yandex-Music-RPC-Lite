@@ -8,8 +8,8 @@
 > ![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118629842615795732/image.png)
 > ![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118629855819468900/image.png)
 
-![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118629848949207120/image.png)
-![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118630160736985239/image.png)
+>![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118629848949207120/image.png)
+>![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118630160736985239/image.png)
 # Требования
 - Discord
 - Google Chrome (Нужен для получения токена)

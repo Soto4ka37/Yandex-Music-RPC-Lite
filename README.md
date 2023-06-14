@@ -7,8 +7,8 @@
 # Скриншоты:
 ![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118607762566430760/image.png)
 ![image](https://media.discordapp.net/attachments/1117022431748554782/1118607762864218212/image.png)
-![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118618306098757692/image.png)
 
+![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118618306098757692/image.png)
 ![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118624054140752014/image.png)
 ## Info
 - Автор скрипта не несёт ответственность за данные ваших аккаунтов, он их не получает и никому не передаёт.

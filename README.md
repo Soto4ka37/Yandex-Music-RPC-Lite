@@ -1,7 +1,7 @@
 # Yandex Music RPC Lite
 
 ![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118607762566430760/image.png)
-# # Персонализация: Настройте RPC под себя!
+## Персонализация: Настройте RPC под себя!
 - Скрипт можно настроить через info/config.ini
 
 ![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118618306098757692/image.png)

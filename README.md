@@ -1,14 +1,15 @@
 # Yandex Music RPC Lite
 - Скрипт можно настоить под себя в конфиге
+> info/config.ini
 - Если трек повторяется, скрипт перейдёт в режим повтора
 - Музыку можно слушать с любого устройства
 - Определение точной позиции плеера и трека из "Волны" в настоящий момент невозможно из-за ограничений API.
 # Скриншоты:
-![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118607762566430760/image.png)
-![image](https://media.discordapp.net/attachments/1117022431748554782/1118607762864218212/image.png)
+![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118629842615795732/image.png)
+![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118629855819468900/image.png)
 
-![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118618306098757692/image.png)
-![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118624054140752014/image.png)
+![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118629848949207120/image.png)
+![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118630160736985239/image.png)
 # Требования
 - Discord
 - Google Chrome (Нужен для получения токена)

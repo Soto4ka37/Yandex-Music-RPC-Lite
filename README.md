@@ -3,10 +3,10 @@
 ![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118607762566430760/image.png)
 ## Персонализация: Настройте RPC под себя!
 - Скрипт можно настроить через info/config.ini
-- ![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118618306098757692/image.png)
+ ![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118618306098757692/image.png)
 ## Слушайте на репите!
 - Если трек повторяется, скрипт перейдёт в режим повтора
-- ![image](https://media.discordapp.net/attachments/1117022431748554782/1118607762864218212/image.png)
+ ![image](https://media.discordapp.net/attachments/1117022431748554782/1118607762864218212/image.png)
 ## Слушайте с любого устройства!
 # Примечания
 - Отображение трека из "Волны" в настоящий момент невозможно из-за ограничений API. RPC при потоке можно настроить.

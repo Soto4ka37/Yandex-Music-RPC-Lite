@@ -1,4 +1,4 @@
-# Yandex Music RPC Lite
+# Yandex Music Discord RPC
 - Музыку можно слушать с любого устройства
 - Скрипт можно настоить через config.ini
 > info/config.ini
@@ -9,12 +9,10 @@
 
 >![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118629848949207120/image.png)
 >![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118630160736985239/image.png)
-# Требования
-- Discord
 # Установка
 - Скачиваем архив
 - Распаковываем в любую папку
-- Запускаем Яндекс Музыка RPC.exe
+- Запускаем Discord RPC.exe
 - Входим в аккаунт для получения токена (Только при первом запуске)
 - Скрипт запущен!
 # Info

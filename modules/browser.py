@@ -65,8 +65,7 @@ class WebBrowser(Frame):
         
     def OnLeftClick(self, event):
         self.Show()
-        self.Restore()
-    
+        self.Iconize(False)
     def OnRightClick(self, event):
         menu = wx.Menu()
         
@@ -87,17 +86,17 @@ class WebBrowser(Frame):
 
     def OnOpen(self, event):
         self.Show()
-        self.Restore()
+        self.Iconize(False)
 
     def OnGitHubClicked(self, event):
         self.browser.LoadURL("https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/")
         self.Show()
-        self.Restore()
+        self.Iconize(False)
 
     def OnYandexMusicClicked(self, event):
         self.browser.LoadURL("https://music.yandex.ru/")
         self.Show()
-        self.Restore()
+        self.Iconize(False)
 
     def OnRefreshButtonClicked(self, event):
         self.browser.Reload()

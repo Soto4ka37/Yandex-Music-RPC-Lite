@@ -4,31 +4,18 @@ from configparser import ConfigParser
 
 config = ConfigParser()
 config.read('info/config.ini')
-if len(config.get("main","yandexmusictoken")) <= 2:
-    print("[RPC] Установка необходимых пакетов.")
-    os.system('pip install yandex-music --upgrade')
-    os.system('pip install selenium')
-    os.system('pip install pypresence')
-    os.system('pip install yandex_music')
-    os.system('pip install webdriver_manager')
-    os.system('pip install keyboard')
-    os.system('pip install pywin32')
-    os.system('pip install pypiwin32')
 import time
 mode = config.get("settings", "maintime")
 wavemode = config.get("settings", "wavetime")
 button = config.get("settings", "button")
 if not (button == "0" or button == "1"):
-    print('[ОШИБКА] button НЕ УСТАНОВЛЕН ИЛИ УСТАНОВЛЕН НЕ ПРАВИЛЬНО!')
-    print('[Решение ошибки] Установлен режим по умолчанию (button = 1) для этой сессии, укажите правильный режим в info/conifg.ini')
+    print('[Ошибка] Установлен режим по умолчанию (button = 1) для этой сессии, укажите правильный режим в info/conifg.ini')
 if not (mode == "0" or mode == "1" or mode == "2"):
-    print('[ОШИБКА] maintime НЕ УСТАНОВЛЕН ИЛИ УСТАНОВЛЕН НЕ ПРАВИЛЬНО!')
     mode = "2"
-    print('[Решение ошибки] Установлен режим по умолчанию (timemode = 2) для этой сессии, укажите правильный режим в info/conifg.ini')
+    print('[Ошибка] Установлен режим по умолчанию (timemode = 2) для этой сессии, укажите правильный режим в info/conifg.ini')
 if not (wavemode == "0" or wavemode == "1"):
-    print('[ОШИБКА] wavemode НЕ УСТАНОВЛЕН ИЛИ УСТАНОВЛЕН НЕ ПРАВИЛЬНО!')
     wavemode = "1"
-    print('[Решение ошибки] Установлен режим по умолчанию (wavemode = 1) для этой сессии, укажите правильный режим в info/conifg.ini')
+    print('[Ошибка] Установлен режим по умолчанию (wavemode = 1) для этой сессии, укажите правильный режим в info/conifg.ini')
 from modules.rpc import MRPC
 from modules.yandexmusic import MYAPI
 from threading import Thread

@@ -1,17 +1,20 @@
 from configparser import ConfigParser
 from yandex_music import Client
-from modules.getToken import token
+from modules.getToken import UpdateToken
 
 config = ConfigParser()
 
 config.read('info/config.ini')
 
-if len(config.get("main","yandexmusictoken")) <= 2:
-    print("[RPC] Получение токена.. Войдите в аккаунт в открывшимся окне")
-    config.set("main", "yandexmusictoken", token.get_token())
-    print("[RPC] Токен получен и сохранён в config.ini.")
+if len(config.get("main", "yandexmusictoken")) <= 2:
+    token = UpdateToken()
+    if token != "0":
+        config.set("main", "yandexmusictoken", token)
+    else:
+        config.set("main", "yandexmusictoken", "0")
     with open("info/config.ini", "w") as config_file:
         config.write(config_file)
+
     client = Client(config.get("main", "yandexmusictoken")).init()
 else:
     client = Client(config.get("main", "yandexmusictoken")).init()

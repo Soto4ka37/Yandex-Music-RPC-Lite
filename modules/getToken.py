@@ -1,41 +1,41 @@
-import json
-from time import sleep
-from selenium import webdriver
-from selenium.webdriver import DesiredCapabilities
-from selenium.webdriver.remote.command import Command
-from webdriver_manager.chrome import ChromeDriverManager
+from configparser import ConfigParser
 
-def is_active(driver):
-    try:
-        driver.execute(Command.GET_ALL_COOKIES)
-        return True
-    except Exception:
-        return False
+import wx
+from wx import App, Frame, EVT_CLOSE
+from wx.html2 import WebView
 
-class token:
-    def get_token():
-        capabilities = DesiredCapabilities.CHROME
-        capabilities["loggingPrefs"] = {"performance": "ALL"}
-        capabilities['goog:loggingPrefs'] = {'performance': 'ALL'}
-        driver = webdriver.Chrome(desired_capabilities=capabilities,
-                                executable_path=ChromeDriverManager().install())
-        driver.get(
-            "https://oauth.yandex.ru/authorize?response_type=token&client_id=23cabbbdc6cd418abb4b39c32c41195d")
-        token = None
-        while token == None and is_active(driver):
-            sleep(1)
-            try:
-                logs_raw = driver.get_log("performance")
-            except:
-                pass
-            for lr in logs_raw:
-                log = json.loads(lr["message"])["message"]
-                url_fragment = log.get('params', {}).get('frame', {}).get('urlFragment')
+config = ConfigParser()
+config.read('info/config.ini')
 
-                if url_fragment:
-                    token = url_fragment.split('&')[0].split('=')[1]
-        try:
-            driver.close()
-        except:
-            pass
-        return token
+
+class TokenFrame(Frame):
+    def __init__(self, parent):
+        super().__init__(parent, title="Логин", size=(450, 600))
+
+        self.browser = WebView.New(self)
+        self.browser.Bind(wx.html2.EVT_WEBVIEW_NAVIGATING, self.OnUrlChanged)
+
+        self.Bind(EVT_CLOSE, self.OnClose)
+
+    def OnUrlChanged(self, event):
+        url = event.GetURL()
+        print(url)
+        if "#access_token" in url:
+            print(url.split("=")[1].split("&")[0])
+            self.token = url.split("=")[1].split("&")[0]
+            self.Destroy()
+
+    def OnClose(self, event):
+        self.token = None
+        self.Destroy()
+
+
+def UpdateToken():
+    app = App(redirect=False)
+    token_frame = TokenFrame(None)
+    token_frame.browser.LoadURL(
+        "https://oauth.yandex.ru/authorize?response_type=token&client_id=23cabbbdc6cd418abb4b39c32c41195d")
+    token_frame.Show()
+    app.MainLoop()
+    print(token_frame.token)
+    return token_frame.token

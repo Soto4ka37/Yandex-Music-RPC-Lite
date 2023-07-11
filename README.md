@@ -11,12 +11,10 @@
 >![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118630160736985239/image.png)
 # Требования
 - Discord
-- Google Chrome (Нужен для получения токена)
-> [Как получить токен вручную?](https://yandex-music.readthedocs.io/en/main/token.html)
 # Установка
-- Скачиваем [архив](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/releases/download/v4/YMRPCLite.zip)
+- Скачиваем архив
 - Распаковываем в любую папку
-- Запускаем RPC.exe
+- Запускаем Яндекс Музыка RPC.exe
 - Входим в аккаунт для получения токена (Только при первом запуске)
 - Скрипт запущен!
 # Info

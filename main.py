@@ -1,4 +1,3 @@
-import os
 import datetime
 from configparser import ConfigParser
 
@@ -59,7 +58,10 @@ def app():
                         MRPC.repeat0(song)
                         repeat = 1
         except Exception as e:
-            if wave == 0 and wavemode == "1":
+            if str(e) == "Timed out":
+                pass
+            elif wave == 0 and wavemode == "1":
+                print(e)
                 print('[RPC] Нет информации о треке. Возможно у вас включен поток')
                 lasttrack = 0
                 repeat = 0

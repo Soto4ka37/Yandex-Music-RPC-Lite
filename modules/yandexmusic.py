@@ -28,7 +28,7 @@ class MYAPI:
         duration_min = ((last_track.duration_ms // (1000 * 60)) % 60)
         duration_sec = ((last_track.duration_ms // 1000) % 60)
         duration_raw = ((last_track.duration_ms // 1000))
-        return last_track.title, ', '.join(last_track.artists_name()), f"https://music.yandex.ru/album/{lQlt['albums'][0]['id']}/track/{lQlt['id']}/", lQ.get_current_track(), "https://" + lQlt.cover_uri.replace("%%", "200x200"), duration_min, duration_sec, duration_raw
+        return last_track.title, ', '.join(last_track.artists_name()), f"https://music.yandex.ru/album/{lQlt['albums'][0]['id']}/track/{lQlt['id']}/", lQlt['id'], "https://" + lQlt.cover_uri.replace("%%", "200x200"), duration_min, duration_sec, duration_raw
 
     # song[0] - Название трека
     # song[1] - Автор трека

@@ -10,7 +10,6 @@ class WebBrowser(Frame):
 
     def OnLoad(self, event):
         self.webtitle = self.browser.GetCurrentURL()
-        self.history.InsertItems([self.webtitle], 0)
         return
 
     def NewWindow(self, event):
@@ -39,14 +38,6 @@ class WebBrowser(Frame):
         
         self.tbicon.Bind(wx.adv.EVT_TASKBAR_LEFT_DOWN, self.OnLeftClick)
         self.tbicon.Bind(wx.adv.EVT_TASKBAR_RIGHT_DOWN, self.OnRightClick)
-
-        self.back_button = Button(self, label="Главная страница")
-        sizer.Add(self.back_button, proportion=0, flag=EXPAND, border=10)
-        self.Bind(EVT_BUTTON, self.OnYandexMusicClicked, self.back_button)
-
-        self.refresh_button = Button(self, label="Обновить страницу")
-        sizer.Add(self.refresh_button, proportion=0, flag=EXPAND, border=10)
-        self.Bind(EVT_BUTTON, self.OnRefreshButtonClicked, self.refresh_button)
 
     def OnClose(self, event):
         self.Hide()

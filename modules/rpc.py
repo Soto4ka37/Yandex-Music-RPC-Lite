@@ -1,8 +1,8 @@
 from configparser import ConfigParser
 import datetime
-from modules.button import BTNget
+from modules.button import Button
 config = ConfigParser()
-config.read('info/config.ini')
+config.read('config.ini')
 from pypresence import Presence
 dRPC = Presence(client_id=1116090392123822080)
 dRPC.connect()
@@ -32,10 +32,10 @@ class MRPC:
             state=f'{song[1]:0>2}', 
             large_image=song[4],
             small_image='logo',
-            large_text=f"{song[0]} [{song[5]}:{song[6]:0>2}]",
+            large_text=f"{song[8]} ({song[9]} треков)",
             small_text=f'Длинна трека: {song[5]}:{song[6]:0>2}',
             end=end_time,
-            buttons=BTNget.btn(song),
+            buttons=Button.button(song),
         )
     def update0(song):
         dRPC.update(
@@ -43,9 +43,9 @@ class MRPC:
             state=f'{song[1]:0>2}', 
             large_image=song[4],
             small_image='logo',
-            large_text=f"{song[0]} [{song[5]}:{song[6]:0>2}]",
+            large_text=f"{song[8]} ({song[9]} треков)",
             small_text=f'Длинна трека: {song[5]}:{song[6]:0>2}',
-            buttons=BTNget.btn(song),
+            buttons=Button.button(song),
         )
     def repeat2(song, lastupdatetimestamp):
         dRPC.update(
@@ -53,9 +53,9 @@ class MRPC:
             state=f'{song[1]:0>2}', 
             large_image=song[4],
             small_image='repeat',
-            large_text=f"{song[0]} [{song[5]}:{song[6]:0>2}]",
+            large_text=f"{song[8]} ({song[9]} треков)",
             small_text=f'Трек повторяется',
-            buttons=BTNget.btn(song),
+            buttons=Button.button(song),
             start=lastupdatetimestamp,
         )
     def repeat1(song):
@@ -65,10 +65,10 @@ class MRPC:
             state=f'{song[1]:0>2}', 
             large_image=song[4],
             small_image='repeat',
-            large_text=f"{song[0]} [{song[5]}:{song[6]:0>2}]",
+            large_text=f"{song[8]} ({song[9]} треков)",
             small_text=f'Трек повторяется',
             end=end_time,
-            buttons=BTNget.btn(song),
+            buttons=Button.button(song),
         )
     def repeat0(song):
         dRPC.update(
@@ -76,7 +76,7 @@ class MRPC:
             state=f'{song[1]:0>2}', 
             large_image=song[4],
             small_image='repeat',
-            large_text=f"{song[0]} [{song[5]}:{song[6]:0>2}]",
+            large_text=f"{song[8]} ({song[9]} треков)",
             small_text=f'Трек повторяется',
-            buttons=BTNget.btn(song),
+            buttons=Button.button(song),
         )

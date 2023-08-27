@@ -1,7 +1,6 @@
 # Yandex Music Discord RPC
 - Музыку можно слушать с любого устройства
 - Скрипт можно настоить через config.ini
-> config.ini
 
 # Скриншоты
 > ![image](https://cdn.discordapp.com/attachments/1117022431748554782/1118629842615795732/image.png)

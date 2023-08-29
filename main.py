@@ -1,4 +1,4 @@
-version = "v5.2"
+version = "v6"
 import datetime
 from configparser import ConfigParser
 import colorama
@@ -17,55 +17,43 @@ def check_updates(version):
     else:
         print(colorama.Fore.YELLOW + f'[RPC] Не удалось проверить обновления.' + colorama.Style.RESET_ALL)
 config = ConfigParser()
+def load_data():
+    global debug, mode
+    config.read('settings.ini', encoding='utf-8')
+    yandexmusictoken = config.get('sys', 'yandexmusictoken')
+    debug = config.getboolean('sys', 'debug')
+    mode = config.get('track', 'mode')
+    button = config.getboolean('track', 'button')
+    wavetime = config.getboolean('wave', 'wavetime')
+    details = config.get('wave', 'details')
+    state = config.get('wave', 'state')
+    large_image_text = config.get('wave', 'large_image_text')
+    icon_text = config.get('wave', 'icon_text')
 try:
-    config.read('config.ini')
-    import time
-    mode = config.get("settings", "mode")
-    wavemode = config.get("settings", "wavetime")
-    button = config.get("settings", "button")
-except:
-    print(colorama.Fore.RED + "Файл config.ini не найден или повреждён!" + colorama.Style.RESET_ALL)
-    print(colorama.Fore.YELLOW + "Скачивание файла..." + colorama.Style.RESET_ALL)
-    response = requests.get("https://raw.githubusercontent.com/soto4ka37/yandex-music-rpc-lite/master/config.ini")
-    if response.status_code == 200:
-        with open("config.ini", "wb") as file:
+    load_data()
+except Exception as e:
+    print(e)
+    print(colorama.Fore.RED + 'Файл настроек settings.ini не найден или повреждён!' + colorama.Style.RESET_ALL)
+    input(colorama.Fore.GREEN + 'Нажмите Enter чтобы скачать необходимый файл в корневую папку.' + colorama.Style.RESET_ALL)
+    response = requests.get("https://raw.githubusercontent.com/soto4ka37/yandex-music-rpc-lite/master/settings.ini")
+    with open("settings.ini", "wb") as file:
+        try:
             file.write(response.content)
-            print(colorama.Fore.GREEN + "Файл config.ini успешно скачан!" + colorama.Style.RESET_ALL)
-    else:
-        print(colorama.Fore.RED + "Неудачное скачивание!" + colorama.Style.RESET_ALL)
-        print(colorama.Fore.YELLOW + "Генерация файла..." + colorama.Style.RESET_ALL)
-        config['main'] = {
-            'yandexmusictoken': '0'
-        }
-
-        config['settings'] = {
-            'mode': 'Single',
-            'wavetime': 'True',
-            'button': 'True'
-        }
-
-        with open('config.ini', 'w') as configfile:
-            config.write(configfile)
-        print(colorama.Fore.GREEN + "Файл config.ini успешно сгенерирован!" + colorama.Style.RESET_ALL)
+            print(colorama.Fore.GREEN + "Файл settings.ini успешно скачан!" + colorama.Style.RESET_ALL)
+            load_data()
+        except:
+            input(colorama.Fore.Red + "Не удалось поместить файл в корневую папку!" + colorama.Style.RESET_ALL)
 
 from modules.yandexmusic import MYAPI
-from modules.rpc import MRPC
+from modules.rpc import MRPC2
 from threading import Thread
 
-if mode not in ["True", "Single", "Restart"]:
+if mode not in ["False", "Single", "Restart"]:
     print(colorama.Fore.RED + '[Предупреждение] "mode" не правильно установлен! Использую "Single" как режим по умолчанию!' + colorama.Style.RESET_ALL)
-    mode = True
-elif mode == "True":
-    mode = True
+    mode = "Single"
+elif mode == "False":
+    mode = False
 
-if wavemode not in ["True", "False"]:
-    print(colorama.Fore.RED + '[Предупреждение] "wavetime" не правильно установлен! Использую "True" как режим по умолчанию!' + colorama.Style.RESET_ALL)
-    wavemode = True
-else:
-    if wavemode == "True":
-        wavemode = True
-    else:
-        wavemode = False
 print(colorama.Fore.GREEN + f'[RPC] Загружены настройки из сonifg.ini'  + colorama.Style.RESET_ALL)
 
 def check_updates(version):
@@ -75,7 +63,7 @@ def check_updates(version):
         latest = response.json()
         latest_version = latest["tag_name"]
         if version != latest_version:
-            print(colorama.Fore.YELLOW + f'[GitHub] Вышла новая версия скрипта! Используется: {version}. Последняя: {latest_version}')
+            print(colorama.Fore.YELLOW + f'[GitHub] Доступна новая версия скрипта! Используется: {version}. Последняя: {latest_version}')
             print(f'>>> https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/releases/latest' + colorama.Style.RESET_ALL)
     else:
         print(colorama.Fore.YELLOW + f'[RPC] Не удалось проверить обновления.' + colorama.Style.RESET_ALL)
@@ -86,6 +74,7 @@ def app():
     lasttrack = None
     repeat = None
     wave = None
+    time_repeat = None
     while True:
         try:
             song = MYAPI.song()
@@ -94,45 +83,34 @@ def app():
                 update = True
             if update:
                 print(f'[RPC] Смена трека: {song[1]} - {song[0]} ({song[5]}:{song[6]:0>2})')
-                if mode:
-                    MRPC.update2(song)
-                if not mode:
-                    MRPC.update0(song)
+                MRPC2.update(song=song, mode=mode)
                 lastupdate = datetime.datetime.now()
-                lastupdatetimestamp = int(datetime.datetime.now().timestamp())
                 update = False
                 repeat = False
                 wave = False
             if not repeat:
-                time_repeat = (datetime.datetime.now() - lastupdate).total_seconds()
+                if mode:
+                    time_repeat = (datetime.datetime.now() - lastupdate).total_seconds()
                 #print(f'До перехода в режим повтора: {time_repeat}/{song[7]}')
-                if time_repeat > song[7] + 3:
-                    if not mode:
-                        MRPC.repeat0(song)
-                        repeat = True
-                    elif mode == "Single":
-                        MRPC.repeat2(song, lastupdatetimestamp)
+                if time_repeat and time_repeat > song[7] + 3:
+                    MRPC2.repeat(song=song, mode=mode, time=lastupdate)
+                    if mode == "Single":
                         repeat = True
                         print('[RPC] Трек не изменился.')
-                    elif mode == "Restart":
-                        MRPC.repeat1(song)
-                        print('[RPC] Трек не изменился.')
+                    else:
                         lastupdate = datetime.datetime.now()
+                        print(f'[RPC] Повтор трека: {song[1]} - {song[0]} ({song[5]}:{song[6]:0>2})')
         except Exception as e:
-            #print(e)
             if str(e) in ["Timed out", "Bad Gateway"]:
                 pass
             elif not wave:
-                if wavemode:
-                    wavetime = int(datetime.datetime.now().timestamp())
-                    MRPC.mywave1(wavetime)     
-                elif not wavemode:
-                    MRPC.mywave0()     
+                MRPC2.wave()
                 wave = True        
                 lasttrack = None
                 repeat = False
                 print('[RPC] Нет информации о треке!')
-        time.sleep(0.01)
+                if debug:
+                    print(f"[Debug] {e}")
 
 
 if __name__ == "__main__":

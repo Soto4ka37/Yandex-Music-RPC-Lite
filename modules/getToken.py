@@ -5,7 +5,7 @@ from wx import App, Frame, EVT_CLOSE
 from wx.html2 import WebView
 
 config = ConfigParser()
-config.read('config.ini')
+config.read('settings.ini')
 
 
 class TokenFrame(Frame):

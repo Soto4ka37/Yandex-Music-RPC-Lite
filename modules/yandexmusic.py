@@ -4,30 +4,32 @@ from modules.getToken import UpdateToken
 
 config = ConfigParser()
 
-config.read('config.ini')
+config.read('settings.ini')
 
-if len(config.get("main", "yandexmusictoken")) <= 2:
+if len(config.get("sys", "yandexmusictoken")) <= 2:
     token = UpdateToken()
     if token != "0":
-        config.set("main", "yandexmusictoken", token)
+        config.set("sys", "yandexmusictoken", token)
     else:
-        config.set("main", "yandexmusictoken", "0")
-    with open("config.ini", "w") as config_file:
+        config.set("sys", "yandexmusictoken", "0")
+    with open("settings.ini", "w") as config_file:
         config.write(config_file)
 
-    client = Client(config.get("main", "yandexmusictoken")).init()
+    client = Client(config.get("sys", "yandexmusictoken")).init()
 else:
-    client = Client(config.get("main", "yandexmusictoken")).init()
+    client = Client(config.get("sys", "yandexmusictoken")).init()
 
 class MYAPI:
     def song():
         queue = client.queue(client.queues_list()[0].id)
         last_track_id = queue.get_current_track()
         last_track = last_track_id.fetch_track()
+        
         duration = last_track.duration_ms
         duration_min = ((duration // (1000 * 60)) % 60)
         duration_sec = ((duration // 1000) % 60)
         duration_raw = ((duration // 1000))
+
         album = last_track.albums
         album_name = album[0]['title']
         track_count = album[0]['track_count']

@@ -2,6 +2,7 @@ version = "v6"
 import datetime
 from configparser import ConfigParser
 import colorama
+import time
 import requests
 
 colorama.init()
@@ -16,12 +17,13 @@ def check_updates(version):
             print(f'>>> https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/releases/latest' + colorama.Style.RESET_ALL)
     else:
         print(colorama.Fore.YELLOW + f'[RPC] Не удалось проверить обновления.' + colorama.Style.RESET_ALL)
-config = ConfigParser()
 def load_data():
-    global debug, mode
+    config = ConfigParser()
+    global debug, mode, ping
     config.read('settings.ini', encoding='utf-8')
     yandexmusictoken = config.get('sys', 'yandexmusictoken')
     debug = config.getboolean('sys', 'debug')
+    ping = config.getint('sys', 'ping')
     mode = config.get('track', 'mode')
     button = config.getboolean('track', 'button')
     wavetime = config.getboolean('wave', 'wavetime')
@@ -32,7 +34,6 @@ def load_data():
 try:
     load_data()
 except Exception as e:
-    print(e)
     print(colorama.Fore.RED + 'Файл настроек settings.ini не найден или повреждён!' + colorama.Style.RESET_ALL)
     input(colorama.Fore.GREEN + 'Нажмите Enter чтобы скачать необходимый файл в корневую папку.' + colorama.Style.RESET_ALL)
     response = requests.get("https://raw.githubusercontent.com/soto4ka37/yandex-music-rpc-lite/master/settings.ini")
@@ -40,10 +41,10 @@ except Exception as e:
         try:
             file.write(response.content)
             print(colorama.Fore.GREEN + "Файл settings.ini успешно скачан!" + colorama.Style.RESET_ALL)
-            load_data()
+            time.sleep(1)
         except:
             input(colorama.Fore.Red + "Не удалось поместить файл в корневую папку!" + colorama.Style.RESET_ALL)
-
+load_data()
 from modules.yandexmusic import MYAPI
 from modules.rpc import MRPC2
 from threading import Thread
@@ -111,6 +112,7 @@ def app():
                 print('[RPC] Нет информации о треке!')
                 if debug:
                     print(f"[Debug] {e}")
+        time.sleep(ping)
 
 
 if __name__ == "__main__":

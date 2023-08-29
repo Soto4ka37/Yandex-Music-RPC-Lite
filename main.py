@@ -64,8 +64,8 @@ def check_updates(version):
         latest = response.json()
         latest_version = latest["tag_name"]
         if version != latest_version:
-            print(colorama.Fore.YELLOW + f'[GitHub] Доступна новая версия скрипта! Используется: {version}. Последняя: {latest_version}')
-            print(f'>>> https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/releases/latest' + colorama.Style.RESET_ALL)
+            print(colorama.Fore.YELLOW + f'[GitHub] Доступна новая версия скрипта! Используется: {version} Последняя: {latest_version}')
+            print(colorama.Fore.CYAN + f'>>> https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/releases/latest' + colorama.Style.RESET_ALL)
     else:
         print(colorama.Fore.YELLOW + f'[RPC] Не удалось проверить обновления.' + colorama.Style.RESET_ALL)
 check_updates(version)

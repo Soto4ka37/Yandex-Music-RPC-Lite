@@ -3,6 +3,8 @@ from configparser import ConfigParser
 import wx
 from wx import App, Frame, EVT_CLOSE
 from wx.html2 import WebView
+import colorama
+colorama.init()
 
 config = ConfigParser()
 config.read('settings.ini')
@@ -19,9 +21,7 @@ class TokenFrame(Frame):
 
     def OnUrlChanged(self, event):
         url = event.GetURL()
-        print(url)
         if "#access_token" in url:
-            print(url.split("=")[1].split("&")[0])
             self.token = url.split("=")[1].split("&")[0]
             self.Destroy()
 
@@ -31,11 +31,14 @@ class TokenFrame(Frame):
 
 
 def UpdateToken():
+    print("-----------------------")
+    print(colorama.Fore.GREEN + "Войдите в аккаунт чтобы получить токен. Токен будет сохранён в файл с настройками." + colorama.Style.RESET_ALL)
     app = App(redirect=False)
     token_frame = TokenFrame(None)
     token_frame.browser.LoadURL(
         "https://oauth.yandex.ru/authorize?response_type=token&client_id=23cabbbdc6cd418abb4b39c32c41195d")
     token_frame.Show()
     app.MainLoop()
-    print(token_frame.token)
+    print(colorama.Fore.YELLOW + f'Ваш токен: {token_frame.token}' + colorama.Style.RESET_ALL)
+    print("-----------------------")
     return token_frame.token

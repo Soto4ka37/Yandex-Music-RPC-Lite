@@ -1,5 +1,5 @@
 # Яндекс Музыка в статусе Discord
-> ![image](https://media.discordapp.net/attachments/1117022431748554782/1146199241509838948/RPC.png)
+![image](https://media.discordapp.net/attachments/1117022431748554782/1146199241509838948/RPC.png)
 
 ## Основная информация
 - Скрипт можно настроить через файл settings.ini, который будет создан в корневой папке.

@@ -12,4 +12,4 @@
 
 ## Дополнительно
 - Автор идеи: https://zelenka.guru/threads/4728759
-- [Скрипт иного автора для приложения из Micosoft Store](https://github.com/KycTik31/YMD-plus/).
+- [Скрипт для приложения из Micosoft Store. Точнее отображает время.](https://github.com/KycTik31/YMD-plus/).

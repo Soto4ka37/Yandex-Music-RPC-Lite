@@ -58,7 +58,7 @@ from modules.rpc import MRPC2
 from threading import Thread
 
 
-print(colorama.Fore.GREEN + f'[RPC] Загружены настройки из сonifg.ini'  + colorama.Style.RESET_ALL)
+print(colorama.Fore.GREEN + f'[RPC] Загружены настройки из settings.ini'  + colorama.Style.RESET_ALL)
 
 def check_updates(version):
     url = f"https://api.github.com/repos/Soto4ka37/Yandex-Music-RPC-Lite/releases/latest"

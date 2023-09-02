@@ -1,17 +1,36 @@
 from configparser import ConfigParser
 import datetime
+import colorama
+colorama.init()
 config = ConfigParser()
 config.read('settings.ini', encoding='utf-8')
 from pypresence import Presence
 dRPC = Presence(client_id=1116090392123822080)
 dRPC.connect()
-button = config.getboolean("track", "button")
-wavetime = config.getboolean("wave", "wavetime")
 
-detailswave = config.get('wave', 'details')
-statewave = config.get('wave', 'state')
-ltwave = config.get('wave', 'large_image_text')
-stwave = config.get('wave', 'icon_text')
+try:
+    button = config.getboolean("track", "button")
+except:
+    button = True
+    print("[settings] Переменная button в разделе track неккоректно установлена.")
+try:
+    wavetime = config.getboolean("wave", "time")
+except:
+    wavetime = True
+    print("[settings] Переменная time в разделе wave неккоректно установлена.")
+try:
+    noneclear = config.getboolean("nodata", "clear")
+except:
+    noneclear = False
+    print("[settings] Переменная clear в разделе nodata неккоректно установлена.")
+if noneclear:
+    try:
+        nonetime = config.getboolean("nodata", "time")
+    except:
+        nonetime = True
+        print("[settings] Переменная time в разделе nodata неккоректно установлена.")
+else:
+    nonetime = None
 
 class MRPC2:
     def button(song, setting):
@@ -20,18 +39,29 @@ class MRPC2:
         else:
             button = None
         return button
-    
-    def wave():
+    def none():
+        time = None
+        if noneclear:
+            dRPC.clear()
+        elif nonetime:
+            time = int(datetime.datetime.now().timestamp())
+        if not noneclear:
+            dRPC.update(
+                details="Нет данных о треке",
+                state="Неизвестно",
+                large_image='logo',
+                large_text="Нет данных",
+                start=time
+            )
+    def radio(state):
         start = None
         if wavetime:
             start = int((datetime.datetime.now()).timestamp())
         dRPC.update(
-            details=detailswave,
-            state=statewave,
+            details="Слушает радио",
+            state=f'"{state}"',
             large_image='mywave',
             small_image='logo',
-            small_text=stwave,
-            large_text=ltwave,
             start=start,
         )
     def update(song, mode):
@@ -51,10 +81,12 @@ class MRPC2:
     def repeat(song, mode, time):
         start = None
         end = None
-        if mode == 'Single':
+        if mode == 'Two':
             start = int(time.timestamp())
-        elif mode == 'Restart':
+            data = True
+        elif mode == 'One':
             end = int((datetime.datetime.now() + datetime.timedelta(minutes=song[5], seconds=song[6])).timestamp())
+            data = False
         dRPC.update(
             details=f'{song[0]:0>2}',
             state=f'{song[1]:0>2}', 
@@ -66,3 +98,4 @@ class MRPC2:
             end=end,
             start=start,
         )   
+        return data

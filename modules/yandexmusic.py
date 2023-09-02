@@ -15,16 +15,20 @@ if len(config.get("sys", "yandexmusictoken")) <= 2:
     with open("settings.ini", "w") as config_file:
         config.write(config_file)
 
-    client = Client(config.get("sys", "yandexmusictoken")).init()
+    client = Client(token).init()
 else:
     client = Client(config.get("sys", "yandexmusictoken")).init()
 
 class MYAPI:
+    def radio():
+        list = client.queues_list()[0]
+        description = list['context']['description']
+        return description
+    
     def song():
         queue = client.queue(client.queues_list()[0].id)
         last_track_id = queue.get_current_track()
         last_track = last_track_id.fetch_track()
-        
         duration = last_track.duration_ms
         duration_min = ((duration // (1000 * 60)) % 60)
         duration_sec = ((duration // 1000) % 60)

@@ -31,7 +31,6 @@ class TokenFrame(Frame):
 
 
 def UpdateToken():
-    print("-----------------------")
     print(colorama.Fore.GREEN + "Войдите в аккаунт чтобы получить токен. Токен будет сохранён в файл с настройками." + colorama.Style.RESET_ALL)
     app = App(redirect=False)
     token_frame = TokenFrame(None)

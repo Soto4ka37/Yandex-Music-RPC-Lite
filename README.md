@@ -1,6 +1,6 @@
 # Яндекс Музыка в статусе Discord
 ![image](https://media.discordapp.net/attachments/1117022431748554782/1146199241509838948/RPC.png)
-## [Подробнее о настройке](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/blob/master/settings.ini)
+## [Подробнее о настройке](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/blob/master/Настройки.txt)
 ## Основная информация
 - Скрипт можно настроить через файл settings.ini, который будет создан в корневой папке.
 - Можно слушать музыку с любого устройства, главное чтобы был запущен скрипт.

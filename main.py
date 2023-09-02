@@ -50,11 +50,9 @@ except Exception as e:
         try:
             file.write(response.content)
             print(colorama.Fore.GREEN + "Файл settings.ini успешно скачан!" + colorama.Style.RESET_ALL)
-            time.sleep(1)
         except:
             input(colorama.Fore.Red + "Не удалось поместить файл в корневую папку!" + colorama.Style.RESET_ALL)
-if not mode:
-    debug, mode, ping = load_data()
+debug, mode, ping = load_data()
 from modules.yandexmusic import MYAPI
 from modules.rpc import MRPC2
 from threading import Thread

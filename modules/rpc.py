@@ -39,6 +39,7 @@ class MRPC2:
         else:
             button = None
         return button
+    
     def none():
         time = None
         if noneclear:
@@ -50,20 +51,23 @@ class MRPC2:
                 details="Нет данных о треке",
                 state="Неизвестно",
                 large_image='logo',
-                large_text="Нет данных",
+                large_text="RPC by Soto4ka37",
                 start=time
             )
+
     def radio(state):
         start = None
         if wavetime:
             start = int((datetime.datetime.now()).timestamp())
         dRPC.update(
-            details="Слушает радио",
+            details="Слушает поток",
             state=f'"{state}"',
             large_image='mywave',
             small_image='logo',
+            small_text='RPC by Soto4ka37',
             start=start,
         )
+
     def update(song, mode):
         end_time = None
         if mode:
@@ -74,19 +78,18 @@ class MRPC2:
             large_image=song[4],
             small_image='logo',
             large_text=f"{song[8]} ({song[9]} треков)",
-            small_text=f'Длинна трека: {song[5]}:{song[6]:0>2}',
+            small_text=f'{song[5]}:{song[6]:0>2}',
             end=end_time,
             buttons=MRPC2.button(song, button),
         )
+
     def repeat(song, mode, time):
         start = None
         end = None
         if mode == 'Two':
             start = int(time.timestamp())
-            data = True
         elif mode == 'One':
             end = int((datetime.datetime.now() + datetime.timedelta(minutes=song[5], seconds=song[6])).timestamp())
-            data = False
         dRPC.update(
             details=f'{song[0]:0>2}',
             state=f'{song[1]:0>2}', 
@@ -98,4 +101,3 @@ class MRPC2:
             end=end,
             start=start,
         )   
-        return data

@@ -22,8 +22,9 @@ else:
 class MYAPI:
     def radio():
         list = client.queues_list()[0]
+        type = list["context"]["type"]
         description = list['context']['description']
-        return description
+        return description, type, list
     
     def song():
         queue = client.queue(client.queues_list()[0].id)

@@ -63,7 +63,7 @@ try:
         debug, mode, ping, MYAPI, MRPC2 = load_data()
 
     def app():
-        version = "v7.1.1 FIX"
+        version = "v7.1.1"
         lasttrack = None
         lastradio = None
         nowplaymode = None

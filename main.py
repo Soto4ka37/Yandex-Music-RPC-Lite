@@ -63,7 +63,7 @@ try:
         debug, mode, ping, MYAPI, MRPC2 = load_data()
 
     def app():
-        version = "v7.1"
+        version = "v7.1.1 FIX"
         lasttrack = None
         lastradio = None
         nowplaymode = None
@@ -90,7 +90,7 @@ try:
                     if song[3] != lasttrack:
                         lasttrack = song[3]
                         nowplaymode = None
-                    if nowplaymode != "Track":
+                    if nowplaymode not in ["Track", "Repeat"]:
                         print(f'[RPC] Смена трека: {song[1]} - {song[0]} ({song[5]}:{song[6]:0>2})')
                         MRPC2.update(song=song, mode=mode)
                         lastupdate = datetime.datetime.now()

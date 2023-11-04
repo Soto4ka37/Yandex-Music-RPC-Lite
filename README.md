@@ -1,5 +1,9 @@
 # Яндекс Музыка в статусе Discord
 ![image](https://media.discordapp.net/attachments/1117022431748554782/1146199241509838948/RPC.png)
+# Ссылки
+- [Скачать (GitHub)](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/releases/download/v8.0/RPC.v8.0.exe)
+- [Скачать (Зеркало)](https://www.soto4ka.space/file/RPC%20v8.0.exe)
+- [Сообщить об ошибке](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/issues/new)
 ## Основная информация
 - Поддержка работы в фоновом режиме
 - Добавлены интерфейс и визуальные настройки

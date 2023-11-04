@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 *.pyproj
 Yandex-Music-RPC-Lite.code-workspace
+NEW/data.json

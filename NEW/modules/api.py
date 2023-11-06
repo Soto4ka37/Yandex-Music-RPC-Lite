@@ -1,25 +1,39 @@
 from yandex_music import Client
 from modules.data import load_settings, save_settings
+from tkinter import messagebox
+import sys
+chrome_err = None
+err = None
 settings = load_settings()
 
-while True:
+token = settings.get('token')
+
+if not token or len(token) <= 3:
+    from modules.token.wx import get_token
+    try:
+        token = get_token()
+        settings['token'] = token
+        save_settings(settings)
+    except Exception as e:
+        chrome_err = e
+        print(e)
     token = settings.get('token')
-    if not token or len(token) <= 3:
-        try:
-            from modules.getToken import UpdateToken
-            token = UpdateToken()
-            settings['token'] = token
-            save_settings(settings)
-        except Exception as e:
-            from tkinter import messagebox
-            import sys
-            messagebox.showerror("Ошибка", f"Произошла ошибка при получении токена!\n{e}")
-            sys.exit()            
-    else:
-        break
 
+if not token or len(token) <= 3:
+    from modules.token.chrome import get_token
+    try:
+        token = get_token()
+        settings['token'] = token
+        save_settings(settings)
+    except Exception as e:
+        err = e
 
-client = Client(settings.get('token')).init()
+if not token or len(token) <= 3:
+    messagebox.showerror("Ошибка", f"Не удалось получить токен!\n\nСпособ от KysTik31: {err}\nСпособ через Google Chrome: {chrome_err}")
+    sys.exit()   
+    
+token = settings.get('token')
+client = Client(token).init()
 
 class Radio:
     def __init__(self):

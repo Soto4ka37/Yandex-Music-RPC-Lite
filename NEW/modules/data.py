@@ -2,6 +2,7 @@ import json
 import os
 import requests
 import sys
+from tkinter import messagebox 
 
 default = {
   "ping": 1,
@@ -12,6 +13,8 @@ default = {
   "n_time": True,
   "on": False,
   "update": True,
+  "image": True,
+  "background": True,
   "token": "0"
 }
 
@@ -29,6 +32,7 @@ def check_settings():
             settings = json.load(file)
         for key in default.keys():
             if key not in settings:
+                messagebox.showerror("Данные утеряны", "Файл хранящий данные был повреждён. Насройки утеряны. Требуется повторная авторизация.")
                 return False
         return True
     except (FileNotFoundError, json.JSONDecodeError):
@@ -55,7 +59,7 @@ def get_icon_path():
 def get_icon():
     icon_path = get_icon_path()
     if not os.path.exists(icon_path):
-        response = requests.get("https://cdn.discordapp.com/attachments/1117022431748554782/1170439781730230292/RPC-Icon.ico")
+        response = requests.get("https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Icon.ico")
         if response.status_code == 200:
             with open(icon_path, "wb") as file:
                 file.write(response.content)

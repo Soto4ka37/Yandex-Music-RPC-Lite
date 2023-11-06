@@ -1,14 +1,11 @@
 from wx import App, Frame, EVT_CLOSE
 from wx.html2 import WebView, EVT_WEBVIEW_NAVIGATING
 import sys
-
 class TokenFrame(Frame):
     def __init__(self, parent):
-        super().__init__(parent, title="Получение токена", size=(450, 600))
-
+        super().__init__(parent, title="Получение токена (Способ от KycTik31)", size=(450, 600))
         self.browser = WebView.New(self)
         self.browser.Bind(EVT_WEBVIEW_NAVIGATING, self.OnUrlChanged)
-
         self.Bind(EVT_CLOSE, self.OnClose)
 
     def OnUrlChanged(self, event):
@@ -22,7 +19,7 @@ class TokenFrame(Frame):
         self.Destroy()
 
 
-def UpdateToken():
+def get_token():
     app = App(redirect=False)
     token_frame = TokenFrame(None)
     token_frame.browser.LoadURL(

@@ -1,8 +1,6 @@
 version = "v8.1"
 import datetime
 import time
-from modules.presense import Rpc
-from modules.data import save_settings, load_settings, get_icon_path, get_icon
 from threading import Thread
 import tkinter as tk
 from tkinter import messagebox 
@@ -12,29 +10,21 @@ import sys
 from io import BytesIO
 import pystray
 import webbrowser
-from modules.api import Song, Radio
 import os
+from modules.data import save_settings, load_settings, get_icon_path, get_icon
+from modules.api import Song, Radio
+from modules.presense import Rpc
+from modules.update import check_updates
 
+exit = True
+settings_open = False
+trayon = False
 settings = load_settings()
 
 icon_path = get_icon_path()
 if not os.path.exists(icon_path):
     get_icon()
 
-exit = True
-settings_open = False
-trayon = False
-def check_updates(version):
-    response = requests.get("https://api.github.com/repos/Soto4ka37/Yandex-Music-RPC-Lite/releases/latest")
-    
-    if response.status_code == 200:
-        latest = response.json()
-        latest_version = latest["tag_name"]
-        if version != latest_version:
-            answer = messagebox.askquestion("Версия устарела.", f"Версия программы устарела!\nИспользуется: {version} | Последняя: {latest_version}\n\nОткрыть GitHub?")
-            if answer == "yes":
-                webbrowser.open("https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/releases/latest")
-                sys.exit()
 if settings.get('update'):
     check_updates(version)
 
@@ -44,19 +34,19 @@ def gui():
         global settings_open, settings_window
         if settings_open:
             return
-        def on_checkbox_button():
+        def on_button():
             settings['t_button'] = button_var.get()
             save_settings(settings)
 
-        def on_timewave_button():
+        def on_timewave():
             settings['w_time'] = timewave_var.get()
             save_settings(settings)
 
-        def on_clearnodata_button():
+        def on_clearnodata():
             settings['n_clear'] = clearnodata_var.get()
             save_settings(settings)
 
-        def on_timenodata_button():
+        def on_timenodata():
             settings['n_time'] = timenodata_var.get()
             save_settings(settings)
 
@@ -64,9 +54,18 @@ def gui():
             settings['ping'] = pingvar.get()
             save_settings(settings)
 
-        def on_updatecheck_button():
+        def on_updatecheck():
             settings['update'] = updatecheck_var.get()
             save_settings(settings)
+
+        def on_updateimage():
+            settings['image'] = updateimage_var.get()
+            save_settings(settings)
+
+        def on_background():
+            settings['background'] = background_var.get()
+            save_settings(settings)
+
 
         def on_option_selected(event):
             t_time = selected_option.get()
@@ -87,9 +86,17 @@ def gui():
         lbl = tk.Label(settings_window, text="Производительность", font=("Arial Bold", 15))
         lbl.pack(anchor='w')
 
-        updatecheck_var = tk.BooleanVar(value=settings.get('w_time', True))
-        updatecheck = tk.Checkbutton(settings_window, variable=updatecheck_var, text="Проверка обновлений при запуске", command=on_updatecheck_button)
+        updatecheck_var = tk.BooleanVar(value=settings.get('update', True))
+        updatecheck = tk.Checkbutton(settings_window, variable=updatecheck_var, text="Проверка обновлений при запуске", command=on_updatecheck)
         updatecheck.pack(anchor="w")
+
+        updateimage_var = tk.BooleanVar(value=settings.get('image', True))
+        updateimage = tk.Checkbutton(settings_window, variable=updateimage_var, text="Обновлять картинку в приложении (Не влияет на статус)", command=on_updateimage)
+        updateimage.pack(anchor="w")
+        
+        background_var = tk.BooleanVar(value=settings.get('background', False))
+        background = tk.Checkbutton(settings_window, variable=background_var, text="Разрешить работу в фоновом режиме", command=on_background)
+        background.pack(anchor="w")
 
         lbl = tk.Label(settings_window, text="Задержка между запросами (Сек)")
         lbl.pack(anchor='w')
@@ -113,25 +120,25 @@ def gui():
         option_menu.pack(anchor="w")
 
         button_var = tk.BooleanVar(value=settings.get('t_button', True))
-        button = tk.Checkbutton(settings_window, variable=button_var, text='Отображать кнопку "Слушать"', command=on_checkbox_button)
+        button = tk.Checkbutton(settings_window, variable=button_var, text='Отображать кнопку "Слушать"', command=on_button)
         button.pack(anchor="w")
 
         lbl = tk.Label(settings_window, text="Поток", font=("Arial Bold", 15))
         lbl.pack(anchor='w')
 
         timewave_var = tk.BooleanVar(value=settings.get('w_time', True))
-        timewave = tk.Checkbutton(settings_window, variable=timewave_var, text="Подсчёт времени при прослушивании потока", command=on_timewave_button)
+        timewave = tk.Checkbutton(settings_window, variable=timewave_var, text="Подсчёт времени при прослушивании потока", command=on_timewave)
         timewave.pack(anchor="w")
 
         lbl = tk.Label(settings_window, text="Основные", font=("Arial Bold", 15))
         lbl.pack(anchor='w')
         
         clearnodata_var = tk.BooleanVar(value=settings.get('n_clear', False))
-        clearnodata = tk.Checkbutton(settings_window, variable=clearnodata_var, text="Скрыть статус при неизвестном треке", command=on_clearnodata_button)
+        clearnodata = tk.Checkbutton(settings_window, variable=clearnodata_var, text="Скрыть статус при неизвестном треке", command=on_clearnodata)
         clearnodata.pack(anchor="w")
 
         timenodata_var = tk.BooleanVar(value=settings.get('n_time', True))
-        timenodata = tk.Checkbutton(settings_window, variable=timenodata_var, text="Подсчёт времени при неизвестном треке", command=on_timenodata_button)
+        timenodata = tk.Checkbutton(settings_window, variable=timenodata_var, text="Подсчёт времени при неизвестном треке", command=on_timenodata)
         timenodata.pack(anchor="w")
         lbl = tk.Label(settings_window, text="*Настройки применяются при смене трека", font=("Arial Bold", 8))
         lbl.pack(anchor='w')
@@ -142,13 +149,15 @@ def gui():
         if app_var.get() == 1:
             settings["on"] = True
             name.set("Загрузка...")
-            change_image('https://music.yandex.ru/blocks/playlist-cover/playlist-cover_no_cover4.png')
+            if settings.get("image"):
+                change_image('https://music.yandex.ru/blocks/playlist-cover/playlist-cover_no_cover4.png')
             author.set("")
             save_settings(settings)
         else:
             settings["on"] = False
             name.set('СКРИПТ ВЫКЛЮЧЕН')
-            change_image('https://media.discordapp.net/attachments/1117022431748554782/1117022461045772379/logo.png')
+            if settings.get("image"):
+                change_image('https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Icon.png')
             author.set("")
             save_settings(settings)
 
@@ -200,7 +209,7 @@ def gui():
             settings_window.destroy()
         except:
             pass
-        if settings.get('on', False):
+        if settings.get('on', False) and settings.get('background'):
             root.withdraw()
             image = Image.open(icon_path)
             menu = (pystray.MenuItem('Открыть', show_window, default=True), pystray.MenuItem('Настройки', show_settings), pystray.MenuItem('GitHub', open_github), pystray.MenuItem('Выход', quit_window))
@@ -232,6 +241,8 @@ def gui():
     author_label = tk.Label(root, textvariable=author)
     image_label = tk.Label(root)
 
+    if not settings.get("image"):
+        change_image('https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Icon.png')
     update_status()
 
     image_label.grid(row=0, column=0, rowspan=3, sticky="w", padx=5, pady=5)
@@ -272,7 +283,8 @@ def presense():
                         if settings.get('on', False):
                             name.set(song.name)
                             author.set(song.authors)
-                            change_image(song.icon)
+                            if settings.get('image'):
+                                change_image(song.icon)
                         lastupdate = datetime.datetime.now()
                         nowplaymode = "Track"
                     elif settings.get('t_time', 2) and nowplaymode == "Track":
@@ -290,7 +302,8 @@ def presense():
                         if settings.get('on', False):
                             name.set('Играет поток:')
                             author.set(radio.name)
-                            change_image('https://cdn.discordapp.com/attachments/1117022431748554782/1170297064345829437/mywave.png')
+                            if settings.get('image'):
+                                change_image('https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Wave.png')
                         lastradio = radio.name
                         nowplaymode = None
 
@@ -301,7 +314,8 @@ def presense():
                         if settings.get('on', False):
                             name.set('Неизвестный трек')
                             author.set('')
-                            change_image('https://music.yandex.ru/blocks/playlist-cover/playlist-cover_no_cover4.png')
+                            if settings.get('image'):
+                                change_image('https://music.yandex.ru/blocks/playlist-cover/playlist-cover_no_cover4.png')
                         #print(f'[Song] {song.error}')
                         #print(f'[Radio] {radio.error}')
             else:

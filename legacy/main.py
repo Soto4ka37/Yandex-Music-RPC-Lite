@@ -3,7 +3,7 @@ try:
     from configparser import ConfigParser
     import colorama
     colorama.init()
-    print('Вы используете устаревшую Legacy версию скрипта! Поддержка этой версии завершена 03.11.2023 \n' * 5)
+    print(colorama.Fore.YELLOW + 'Вы используете устаревшую Legacy (7.1.1) версию скрипта! Поддержка этой версии завершена 04.11.2023 \nЕсли у вас возникнут проблемы с работой скрипта обновитесть до актуальной версии\nhttps://github.com/Soto4ka37/Yandex-Music-RPC-Lite/releases/latest\n\n' * 3 + colorama.Style.RESET_ALL)
     import time
     import requests
     from threading import Thread
@@ -42,7 +42,7 @@ try:
     except Exception as e:
         print(colorama.Fore.RED + 'Файл настроек settings.ini не найден или повреждён!' + colorama.Style.RESET_ALL)
         input('Нажмите Enter чтобы скачать необходимый файл в корневую папку.')
-        response = requests.get("https://raw.githubusercontent.com/soto4ka37/yandex-music-rpc-lite/master/settings.ini")
+        response = requests.get("https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/legacy/settings.ini")
         with open("settings.ini", "wb") as file:
             try:
                 file.write(response.content)

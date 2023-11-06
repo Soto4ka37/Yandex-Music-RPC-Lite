@@ -66,7 +66,6 @@ def gui():
             settings['background'] = background_var.get()
             save_settings(settings)
 
-
         def on_option_selected(event):
             t_time = selected_option.get()
             if t_time == 'Выключить время': settings['t_time'] = 0
@@ -199,6 +198,7 @@ def gui():
     def show_window(icon, item):
         icon.stop()
         root.after(0,root.deiconify)
+
     def open_github(icon, item):
         webbrowser.open("https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/")
 
@@ -333,5 +333,6 @@ if __name__ == "__main__":
     
     t2 = Thread(target=gui)
     t2.start()
+    
     t1.join()
     t2.join()

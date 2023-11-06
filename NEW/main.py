@@ -1,8 +1,8 @@
-version = "v8.0"
+version = "v8.1"
 import datetime
 import time
 from modules.presense import Rpc
-from modules.data import save_settings, load_settings
+from modules.data import save_settings, load_settings, get_icon_path, get_icon
 from threading import Thread
 import tkinter as tk
 from tkinter import messagebox 
@@ -14,21 +14,17 @@ import pystray
 import webbrowser
 from modules.api import Song, Radio
 import os
-def get_icon():
-    response = requests.get("https://cdn.discordapp.com/attachments/1117022431748554782/1170439781730230292/RPC-Icon.ico")
-    if response.status_code == 200:
-        with open("icon.ico", "wb") as file:
-            file.write(response.content)
-    else:
-        sys.exit()
-if not os.path.exists('icon.ico'):
-    get_icon()
+
 settings = load_settings()
+
+icon_path = get_icon_path()
+if not os.path.exists(icon_path):
+    get_icon()
+
 exit = True
 settings_open = False
 trayon = False
 def check_updates(version):
-
     response = requests.get("https://api.github.com/repos/Soto4ka37/Yandex-Music-RPC-Lite/releases/latest")
     
     if response.status_code == 200:
@@ -39,7 +35,8 @@ def check_updates(version):
             if answer == "yes":
                 webbrowser.open("https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/releases/latest")
                 sys.exit()
-check_updates(version)
+if settings.get('update'):
+    check_updates(version)
 
 def gui():
     global name, author, change_image
@@ -67,6 +64,10 @@ def gui():
             settings['ping'] = pingvar.get()
             save_settings(settings)
 
+        def on_updatecheck_button():
+            settings['update'] = updatecheck_var.get()
+            save_settings(settings)
+
         def on_option_selected(event):
             t_time = selected_option.get()
             if t_time == 'Выключить время': settings['t_time'] = 0
@@ -85,6 +86,10 @@ def gui():
         settings_window.protocol("WM_DELETE_WINDOW", close_settings_window)
         lbl = tk.Label(settings_window, text="Производительность", font=("Arial Bold", 15))
         lbl.pack(anchor='w')
+
+        updatecheck_var = tk.BooleanVar(value=settings.get('w_time', True))
+        updatecheck = tk.Checkbutton(settings_window, variable=updatecheck_var, text="Проверка обновлений при запуске", command=on_updatecheck_button)
+        updatecheck.pack(anchor="w")
 
         lbl = tk.Label(settings_window, text="Задержка между запросами (Сек)")
         lbl.pack(anchor='w')
@@ -197,7 +202,7 @@ def gui():
             pass
         if settings.get('on', False):
             root.withdraw()
-            image = Image.open("icon.ico")
+            image = Image.open(icon_path)
             menu = (pystray.MenuItem('Открыть', show_window, default=True), pystray.MenuItem('Настройки', show_settings), pystray.MenuItem('GitHub', open_github), pystray.MenuItem('Выход', quit_window))
             icon = pystray.Icon("name", image, f"RPC {version}", menu)
             trayon = True
@@ -211,7 +216,7 @@ def gui():
             sys.exit()
 
     root = tk.Tk()
-    root.iconbitmap('icon.ico')
+    root.iconbitmap(icon_path)
     menu = tk.Menu(root)
     menu.add_cascade(label='Открыть настройки', command=open_settings_window) 
     root.config(menu=menu)

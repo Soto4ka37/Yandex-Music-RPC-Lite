@@ -1,11 +1,11 @@
-# Дополнение 08.11.2023
-Мне сообщили, что некоторые антивирусы в т.ч. и Microsoft Defender (Не всегда) считают программу трояном. В настоящий момент ищу решение проблемы
-- [Ссылка на VirusTotal](https://www.virustotal.com/gui/file/f9a4ee319dd6def366311a11674294e5404dde318171df9907c35dfad9901cec) (6/70) 
+### Дополнение 08.11.2023
+Мне сообщили, что некоторые антивирусы в т.ч. и Microsoft Defender (Не всегда) считают программу трояном. 
+**UPD. 9.11.2023** Проблема частично решена созданием установщика.
 
 # Яндекс Музыка в статусе Discord
 ![image](https://media.discordapp.net/attachments/1117022431748554782/1146199241509838948/RPC.png)
 # Ссылки
-- [Скачать (Последняя версия)](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/releases/download/v8.1/RPC.v8.1.exe)
+- [Скачать (Последняя версия)](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/releases/latest)
 - [Скачать (Legacy версия)](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/releases/download/v7.2/RPC.exe)
 - [Сообщить об ошибке](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/issues/new)
 ## Основная информация

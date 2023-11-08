@@ -5,3 +5,4 @@
 main.build/*
 main.dist/*
 main.onefile-build/*
+nuitka-crash-report.xml

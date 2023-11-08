@@ -43,6 +43,7 @@ def run():
         settings['token'] == "0"
         save_settings(settings)
         token = get_token()
+        client = Client(token).init()
 
 
 class Radio:

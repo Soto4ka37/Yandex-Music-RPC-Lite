@@ -5,6 +5,22 @@ import sys
 from tkinter import messagebox 
 
 default = {
+  "tr_details": "$name",
+  "tr_state": "$authors",
+  "tr_large_image": "$album ($count треков)",
+  "tr_small_image": "$name ($minutes:$seconds)",
+  "re_details": "$name",
+  "re_state": "$authors",
+  "re_large_image": "",
+  "re_small_image": "Трек повторяется",
+  "ww_details": "Играет поток",
+  "ww_state": '"$radioname"',
+  "ww_large_image": '',
+  "ww_small_image": 'RPC by Soto4ka37',
+  "no_details": "Нет данных",
+  "no_state": "",
+  "no_large_image": "RPC by Soto4ka37",
+
   "ping": 1,
   "t_time": 2,
   "t_button": True,

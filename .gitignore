@@ -2,3 +2,6 @@
 *.exe
 *.pyc
 *.json
+main.build/*
+main.dist/*
+main.onefile-build/*

@@ -2,41 +2,53 @@ from yandex_music import Client
 from modules.data import load_settings, save_settings
 from tkinter import messagebox
 import sys
-chrome_err = None
-err = None
 settings = load_settings()
 
-token = settings.get('token')
-
-if not token or len(token) <= 3:
-    from modules.token.wx import get_token
-    try:
-        token = get_token()
-        settings['token'] = token
-        save_settings(settings)
-    except Exception as e:
-        chrome_err = e
-        print(e)
+def get_token():
     token = settings.get('token')
-
-if not token or len(token) <= 3:
-    from modules.token.chrome import get_token
+    if not token or len(token) <= 3:
+        try:
+            from modules.token.wx import get_token
+            token = get_token()
+            settings['token'] = token
+            save_settings(settings)
+        except Exception as e:
+            chrome_err = str(e)
+        token = settings.get('token')
+        if not token or len(token) <= 3:
+            try:
+                from modules.token.chrome import get_token
+                token = get_token()
+                settings['token'] = token
+                save_settings(settings)
+            except Exception as e:
+                err = str(e)
+            token = settings.get('token')
+            if not token or len(token) <= 3:
+                messagebox.showerror("Ошибка", f"Не удалось получить токен!\n\nСпособ от KysTik31: {err}\nСпособ через Google Chrome: {chrome_err}")
+                sys.exit()   
+            else:
+                return token
+        else:
+            return token
+    else:
+        return token
+        
+def run():
+    global client
+    token = get_token()
     try:
-        token = get_token()
-        settings['token'] = token
+        client = Client(token).init()
+    except:
+        settings['token'] == "0"
         save_settings(settings)
-    except Exception as e:
-        err = e
+        token = get_token()
 
-if not token or len(token) <= 3:
-    messagebox.showerror("Ошибка", f"Не удалось получить токен!\n\nСпособ от KysTik31: {err}\nСпособ через Google Chrome: {chrome_err}")
-    sys.exit()   
-    
-token = settings.get('token')
-client = Client(token).init()
 
 class Radio:
     def __init__(self):
+        if not client:
+            raise Exception('Нет клиента, для начала выполните run()')
         self.client = client
         self.update()
 
@@ -57,8 +69,10 @@ class Radio:
 
 class Song:
     def __init__(self):
+        if not client:
+            raise Exception('Нет клиента, для начала выполните run()')
         self.client = client
-        self.update
+        self.update()
 
     def update(self):
         try:

@@ -1,6 +1,6 @@
 # Дополнение 08.112023
 Мне сообщили, что некоторые антивирусы в т.ч. и Microsoft Defender считают программу трояном. В настоящий момент ищу решение проблемы
-- [ССылка на VirusTotal](https://www.virustotal.com/gui/file/f9a4ee319dd6def366311a11674294e5404dde318171df9907c35dfad9901cec) (6/70) 
+- [Ссылка на VirusTotal](https://www.virustotal.com/gui/file/f9a4ee319dd6def366311a11674294e5404dde318171df9907c35dfad9901cec) (6/70) 
 
 # Яндекс Музыка в статусе Discord
 ![image](https://media.discordapp.net/attachments/1117022431748554782/1146199241509838948/RPC.png)

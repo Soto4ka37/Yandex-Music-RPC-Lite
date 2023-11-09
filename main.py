@@ -1,9 +1,9 @@
-version = "v8.2"
+version = "v8.2.1"
 
 import os
 from datetime import datetime
 from time import sleep
-from threading import Thread, Event
+from threading import Thread
 
 import pystray
 import webbrowser
@@ -23,6 +23,7 @@ updatepresense = True
 settings_open = False
 settings_text_open = False
 need_notify = False
+nowindow = False
 
 settings = load_settings()
 
@@ -361,13 +362,14 @@ def gui():
         webbrowser.open("https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/")
 
     def withdraw_window():  
-        global need_notify, icon, settings_window, settings_open
+        global need_notify, icon, settings_window, settings_open, nowindow
         settings_open = False
         try:
             settings_window.destroy()
         except:
             pass
         if settings.get('on', False) and settings.get('background'):
+            nowindow = True
             window.withdraw()
             image = Image.open(icon_path)
             menu = (pystray.MenuItem('Открыть', show_window, default=True), pystray.MenuItem('Настройки', show_settings), pystray.MenuItem('GitHub', open_github), pystray.MenuItem('Выход', quit_window))
@@ -447,10 +449,12 @@ def presense():
                     if nowplaymode not in ["Track", "Repeat"]:
                         Rpc.update(song, settings)
                         if settings.get('on', False):
-                            name.set(song.name)
-                            author.set(song.authors)
-                            if settings.get('image'):
-                                change_image(song.icon)
+                            if not nowindow:
+                                name.set(song.name)
+                                author.set(song.authors)
+                                if settings.get('image'):
+                                    change_image(song.icon)
+                        print(f'{song.name=}\n{song.authors=}\n{radio.name=}')
                         lastupdate = datetime.now()
                         nowplaymode = "Track"
                     elif settings.get('t_time', 2) and nowplaymode == "Track":
@@ -461,51 +465,41 @@ def presense():
                                 lastupdate = datetime.now()
                             elif settings.get('t_time', 2) == 2:
                                 nowplaymode = "Repeat"
+                            print(f'{song.name=}\n{song.authors=}\n{radio.name=}')
 
                 elif radio.done and radio.type == "radio":
                     if radio.name != lastradio:
                         Rpc.radio(radio=radio, settings=settings)
                         if settings.get('on', False):
-                            name.set('Играет поток:')
-                            author.set(radio.name)
-                            if settings.get('image'):
-                                change_image('https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Wave.png')
+                            if not nowindow:
+                                name.set('Играет поток:')
+                                author.set(radio.name)
+                                if settings.get('image'):
+                                    change_image('https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Wave.png')
                         lastradio = radio.name
                         nowplaymode = None
+                        print(f'{song.name=}\n{song.authors=}\n{radio.name=}')
 
                 else:
                     if nowplaymode != 'None':
                         Rpc.nodata(settings)
                         nowplaymode = 'None'
                         if settings.get('on', False):
-                            name.set('Неизвестный трек')
-                            author.set('')
-                            if settings.get('image'):
-                                change_image('https://music.yandex.ru/blocks/playlist-cover/playlist-cover_no_cover4.png')
-                        #print(f'[Song] {song.error}')
-                        #print(f'[Radio] {radio.error}')
+                            if not nowindow:
+                                name.set('Неизвестный трек')
+                                author.set('')
+                                if settings.get('image'):
+                                    change_image('https://music.yandex.ru/blocks/playlist-cover/playlist-cover_no_cover4.png')
+                        print(f'[Song] {song.error}')
+                        print(f'[Radio] {radio.error}')
             else:
                 Rpc.clear()
                 lasttrack = lastradio = nowplaymode = None
         except Exception as e:
-            #print(f"[CRITICAL] {e}")
-            pass
+            print(f"[FATAL] {e}")
+            continue
         sleep(settings.get('ping', 1))
 
-class StoppableThread(Thread):
-    """Thread class with a stop() method. The thread itself has to check
-    regularly for the stopped() condition."""
-
-    def __init__(self,  *args, **kwargs):
-        super(StoppableThread, self).__init__(*args, **kwargs)
-        self._stop_event = Event()
-
-    def stop(self):
-        self._stop_event.set()
-
-    def stopped(self):
-        return self._stop_event.is_set()
-    
 if __name__ == "__main__":
     t1 = Thread(target=presense)
     t1.start()

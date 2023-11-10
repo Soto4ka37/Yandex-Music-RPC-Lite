@@ -1,4 +1,4 @@
-version = "v8.2.1"
+version = "v8.2.2"
 
 import os
 from datetime import datetime
@@ -355,7 +355,9 @@ def gui():
         open_settings()
 
     def show_window(icon, item):
+        global nowindow
         icon.stop()
+        nowindow = False
         window.after(0,window.deiconify)
 
     def open_github(icon, item):
@@ -369,6 +371,10 @@ def gui():
         except:
             pass
         if settings.get('on', False) and settings.get('background'):
+            name.set('Фоновый режим завершён')
+            author.set('Данные обновятся при смене трека')
+            if settings.get("image"):
+                change_image('https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Icon.png')
             nowindow = True
             window.withdraw()
             image = Image.open(icon_path)

@@ -81,10 +81,10 @@ class Rpc():
             start = int(lastupdate.timestamp())
         elif t_time == 1:
             end = int((datetime.datetime.now() + datetime.timedelta(minutes=song.minutes, seconds=song.seconds)).timestamp())
-        details = strsong(settings.get('tr_details'), song)
-        state = strsong(settings.get('tr_state'), song)
-        large_text = strsong(settings.get('tr_large_image'), song)
-        small_text = strsong(settings.get('tr_small_image'), song)
+        details = strsong(settings.get('re_details'), song)
+        state = strsong(settings.get('re_state'), song)
+        large_text = strsong(settings.get('re_large_image'), song)
+        small_text = strsong(settings.get('re_small_image'), song)
         rpc.update(
             details=details,
             state=state, 
@@ -102,15 +102,10 @@ class Rpc():
         start = None
         if w_time:
             start = int((datetime.datetime.now()).timestamp())
-        print(start)
         details = strradio(settings.get('ww_details'), radio)
-        print(f'{details=}')
         state = strradio(settings.get('ww_state'), radio)
-        print(f'{state=}')
         large_text = strradio(settings.get('ww_large_image'), radio)
-        print(f'{large_text=}')
         small_text = strradio(settings.get('ww_small_image'), radio)
-        print(f'{small_text=}')
         rpc.update(
             details=details,
             state=state, 

@@ -1,6 +1,7 @@
 *.code-workspace
 *.exe
 *.pyc
+*.zip
 *.json
 main.build/*
 main.dist/*

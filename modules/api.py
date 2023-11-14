@@ -69,7 +69,7 @@ class Song:
                 self.fulldone = True
                 self.error = None
             except Exception as e:
-                if str(e) not in ('Timed out', 0, 'Bad Gateway'):
+                if str(e) not in ('Timed out', 'None', 'Bad Gateway'):
                     self.fulldone = False
                     self.name = None
                     self.album = None

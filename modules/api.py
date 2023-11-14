@@ -1,53 +1,43 @@
 from yandex_music import Client
-from modules.data import load_settings, save_settings
 from tkinter import messagebox
 import sys
-settings = load_settings()
+from modules.data import save_settings, load_settings
 
-def get_token():
-    token = settings.get('token')
-    if not token or len(token) <= 3:
-        try:
-            from modules.token.wx import get_token
-            token = get_token()
-            settings['token'] = token
-            save_settings(settings)
-        except Exception as e:
-            chrome_err = str(e)
+def getclient():
+    def gettoken(settings):
         token = settings.get('token')
         if not token or len(token) <= 3:
             try:
-                from modules.token.chrome import get_token
+                from modules.token.wx import get_token
                 token = get_token()
                 settings['token'] = token
-                save_settings(settings)
             except Exception as e:
-                err = str(e)
-            token = settings.get('token')
+                chrome_err = str(e)
             if not token or len(token) <= 3:
-                messagebox.showerror("Ошибка", f"Не удалось получить токен!\n\nСпособ от KysTik31: {err}\nСпособ через Google Chrome: {chrome_err}")
-                sys.exit()   
-            else:
-                return token
-        else:
-            return token
-    else:
-        return token
-        
-def run():
-    global client
-    token = get_token()
-    try:
-        client = Client(token).init()
-    except:
-        settings['token'] == "0"
+                try:
+                    from modules.token.chrome import get_token
+                    token = get_token()
+                    settings['token'] = token
+                    save_settings(settings)
+                except Exception as e:
+                    err = str(e)
+                if not token or len(token) <= 3:
+                    messagebox.showerror("Ошибка", f"Не удалось получить токен!\n\nСпособ от KysTik31: {err}\nСпособ через Google Chrome: {chrome_err}")
+                    sys.exit()   
+        settings['token'] = token
         save_settings(settings)
-        token = get_token()
-        client = Client(token).init()
-
+        return token
+    settings = load_settings()
+    token = gettoken(settings)
+    try:
+        client = Client(token)
+    except:
+        token = gettoken(settings)
+        client = Client(token)
+    return client
 
 class Radio:
-    def __init__(self):
+    def __init__(self, client):
         if not client:
             raise Exception('Нет клиента, для начала выполните run()')
         self.client = client
@@ -69,7 +59,7 @@ class Radio:
                 self.name = None
 
 class Song:
-    def __init__(self):
+    def __init__(self, client):
         if not client:
             raise Exception('Нет клиента, для начала выполните run()')
         self.client = client

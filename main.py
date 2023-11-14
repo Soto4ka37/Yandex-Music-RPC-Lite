@@ -1,29 +1,26 @@
-version = "v8.2.2"
+version = "v8.2.3"
 
 import os
 from datetime import datetime
-from time import sleep
+from time import sleep, time
 from threading import Thread
 
 import pystray
 import webbrowser
 import requests
 import tkinter as tk
-from tkinter.ttk import Button, Spinbox, Radiobutton, Checkbutton, Label, Entry
+from tkinter.ttk import Button, Spinbox, Radiobutton, Checkbutton, Label, Entry, Menubutton
 from PIL import Image, ImageTk
 from io import BytesIO
 
 from modules.data import save_settings, load_settings, get_icon_path, get_icon
-from modules.api import Song, Radio, run
-run()
-from modules.presense import Rpc
+from modules.api import getclient, Song, Radio
+from modules.presense import RPC
 from modules.update import check_updates
 
-updatepresense = True
-settings_open = False
-settings_text_open = False
-need_notify = False
-nowindow = False
+lastclick = 0
+mainloop = True
+settings_open = settings_text_open = need_notify = nowindow = rpc = None
 
 settings = load_settings()
 
@@ -35,10 +32,10 @@ if settings.get('update'):
     check_updates(version)
 
 def gui():
-    global name, author, change_image
+    global name, author, change_image, show_window, app_var
     def open_text_settings():
         def close_settings_window():
-            global settings_text_open
+            global settings_text_open, settings_text_window
             settings_text_open = False
             settings_text_window.destroy()
         def guide():
@@ -193,7 +190,7 @@ def gui():
         txt.grid(row=19, column=0, sticky="w", padx=2, pady=1)
 
     def open_settings():
-        global settings_open, settings_text_window, nowplaymode
+        global settings_open, settings_text_window, nowplaymode, settings_window
         if settings_open:
             return
         def on_button():
@@ -254,6 +251,7 @@ def gui():
         settings_window.protocol("WM_DELETE_WINDOW", close_settings_window)
         lbl = Label(settings_window, text="Производительность", font=("Arial Bold", 15))
         lbl.grid(row=0, column=0, sticky="w")
+
         updatecheck_var = tk.BooleanVar(value=settings.get('update', True))
         updatecheck = Checkbutton(settings_window, variable=updatecheck_var, text="Проверять обновления при запуске", command=on_updatecheck)
         updatecheck.grid(row=1, column=0, sticky="w")
@@ -271,7 +269,7 @@ def gui():
 
         pingvar = tk.IntVar()
         pingvar.set(settings.get('ping', 1))
-        ping = Spinbox(settings_window, textvariable=pingvar, from_=0, to=3, width=8, command=on_ping)
+        ping = Spinbox(settings_window, textvariable=pingvar, from_=1, to=3, width=8, command=on_ping)
         ping.grid(row=5, column=0, sticky="w", padx=2)
 
         lbl = Label(settings_window, text="Основные", font=("Arial Bold", 15))
@@ -314,22 +312,44 @@ def gui():
         timenodata = Checkbutton(settings_window, variable=timenodata_var, text="Считать время при неизвестном треке", command=on_timenodata)
         timenodata.grid(row=16, column=0, sticky="w")
 
-    def update_status():
-        global lasttrack, lastradio, nowplaymode
+    def update_status():    
+        global lasttrack, lastradio, nowplaymode, rpc, app_var, lastclick
         lasttrack = lastradio = nowplaymode = None
-        if app_var.get() == 1:
-            settings["on"] = True
+        if app_var.get():
+            now = time() 
+            last = now - lastclick
+            if last <= 10:
+                app_var.set(False)
+                if settings.get("image"):
+                    change_image('https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Icon.png')
+                name.set('Слишком много попыток!')
+                author.set(f'Повторите попытку через {int((10 - last))} сек')
+                return
+            lastclick = time()
             name.set("Загрузка...")
+            author.set('Подключение к Discord...')
             if settings.get("image"):
                 change_image('https://music.yandex.ru/blocks/playlist-cover/playlist-cover_no_cover4.png')
-            author.set("")
+            rpc = RPC()
+            if not rpc.rpc:
+                rpc = None
+                if settings.get("image"):
+                    change_image('https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Icon.png')
+                name.set('Не удалось подключиться к дискорду')
+                author.set('Дискорд не найден')
+                app_var.set(False)
+                settings['on'] = False
+                save_settings(settings)
+                return
+            author.set('Инициализация...')
+            settings["on"] = True
             save_settings(settings)
         else:
             settings["on"] = False
-            name.set('Отключено')
-            if settings.get("image"):
-                change_image('https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Icon.png')
-            author.set("")
+            try:
+                rpc.disconnect()
+            except:
+                pass
             save_settings(settings)
 
     def change_image(url):
@@ -344,11 +364,11 @@ def gui():
         image_label.photo = image
 
     def quit_window(icon, item):
-        global updatepresense
+        global mainloop
+        settings['on'] = False
+        mainloop = False
         show_window(icon, item)
         window.destroy()
-        settings['on'] = False
-        updatepresense = False
 
     def show_settings(icon, item):
         show_window(icon, item)
@@ -360,14 +380,22 @@ def gui():
         nowindow = False
         window.after(0,window.deiconify)
 
-    def open_github(icon, item):
+    def opet_github_issues():
+        webbrowser.open("https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/issues")
+
+    def open_github():
         webbrowser.open("https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/")
 
     def withdraw_window():  
-        global need_notify, icon, settings_window, settings_open, nowindow
-        settings_open = False
+        global need_notify, icon, settings_window, settings_text_window, settings_open, nowindow, settings_text_open
+        try:
+            settings_text_window.destroy()
+            settings_text_open = False
+        except:
+            pass
         try:
             settings_window.destroy()
+            settings_open = False
         except:
             pass
         if settings.get('on', False) and settings.get('background'):
@@ -383,18 +411,16 @@ def gui():
             need_notify = True
             icon.run()
         else:
-            global updatepresense
+            global mainloop
             window.destroy()
             settings['on'] = False
-            updatepresense = False
+            mainloop = False
     window = tk.Tk()
     window.iconbitmap(icon_path)
-    menu = tk.Menu(window)
-    window.config(menu=menu)
+    window.minsize(250, 90)
     window.title(f"RPC")
-    app_checkbox_state = settings.get('on', False)
-    app_var = tk.BooleanVar(value=app_checkbox_state)
-    app_checkbox = Checkbutton(window, text="Connect", variable=app_var, command=update_status)
+    app_var = tk.BooleanVar(value=settings.get('on', False))
+    app_checkbox = Checkbutton(window, text="Подключиться", variable=app_var, command=update_status)
 
     name = tk.StringVar()
     author = tk.StringVar()
@@ -403,19 +429,20 @@ def gui():
     author_label = Label(window, textvariable=author)
     image_label = Label(window)
 
-    if not settings.get("image"):
-        change_image('https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Icon.png')
     update_status()
+    change_image('https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Icon.png')
 
-    btn = Button(window, text="Настройки", command=open_settings)  
-    btn.grid(row=0, column=0)  
-    btn = Button(window, text="Редактор текста", command=open_text_settings)  
-    btn.grid(row=0, column=1, sticky="w", padx=5)  
-
-    image_label.grid(row=1, column=0, rowspan=3, sticky="w", padx=5, pady=5)
-    app_checkbox.grid(row=1, column=1, sticky="w", padx=5)
-    name_label.grid(row=2, column=1, sticky="w", padx=5)
-    author_label.grid(row=3, column=1, sticky="w", padx=5)
+    menu = tk.Menu(window)  
+    new_item = tk.Menu(menu, tearoff=0)  
+    new_item.add_command(label='Базовые настройки', command=open_settings)  
+    new_item.add_command(label='Редактор текста статуса', command=open_text_settings)  
+    menu.add_cascade(label='Настройки', menu=new_item) 
+    menu.add_cascade(label='Сообщить об ошибке', command=opet_github_issues) 
+    window.config(menu=menu)  
+    image_label.grid(row=0, column=0, rowspan=3, sticky="w", padx=5, pady=5)
+    app_checkbox.grid(row=0, column=1, sticky="w", padx=5)
+    name_label.grid(row=1, column=1, sticky="w", padx=5)
+    author_label.grid(row=2, column=1, sticky="w", padx=5)
     def on_drag_start(event):
         global drag_data
         drag_data = {'x': event.x_root - window.winfo_x(), 'y': event.y_root - window.winfo_y()}
@@ -432,78 +459,97 @@ def gui():
     window.mainloop()
 
 def presense():
-    global lasttrack, lastradio, nowplaymode, icon, need_notify
+    global lasttrack, lastradio, nowplaymode, rpc, icon, need_notify, app_var
     lasttrack = lastradio = nowplaymode = None
-    while updatepresense:
+    client = getclient()
+    song = Song(client)
+    radio = Radio(client)
+
+    while mainloop:
         if need_notify:
-            icon.notify(
-            title='Скрыто в трей',
-            message='Приложение работет в фоновом режиме',
-        )
+            icon.notify(title='Скрыто в трей', message='Приложение работет в фоновом режиме')
             need_notify = False
-        song = Song()
-        radio = Radio()
         try:
-            if settings.get("on"):
-                song.update()
-                radio.update()
-
-                if song.done:
-                    if song.link != lasttrack:
-                        lasttrack = song.link
-                        nowplaymode = None
-                    if nowplaymode not in ["Track", "Repeat"]:
-                        Rpc.update(song, settings)
-                        if settings.get('on', False):
-                            if not nowindow:
-                                name.set(song.name)
-                                author.set(song.authors)
-                                if settings.get('image'):
-                                    change_image(song.icon)
-                        print(f'{song.name=}\n{song.authors=}\n{radio.name=}')
-                        lastupdate = datetime.now()
-                        nowplaymode = "Track"
-                    elif settings.get('t_time', 2) and nowplaymode == "Track":
-                        r_time = (datetime.now() - lastupdate).total_seconds()
-                        if r_time >= song.total:
-                            Rpc.repeat(song, settings, lastupdate)
-                            if settings.get('t_time', 2) == 1:
-                                lastupdate = datetime.now()
-                            elif settings.get('t_time', 2) == 2:
-                                nowplaymode = "Repeat"
+            if rpc:
+                if settings.get("on"):
+                    song.update()
+                    if song.done:
+                        if song.link != lasttrack:
+                            lasttrack = song.link
+                            nowplaymode = None
+                        if nowplaymode not in ["Track", "Repeat"]:
+                            rpc.update(song, settings)
+                            if settings.get('on', False):
+                                if not nowindow:
+                                    details = rpc.strsong(settings.get('tr_details'), song)
+                                    state = rpc.strsong(settings.get('tr_state'), song)
+                                    name.set(details)
+                                    author.set(state)
+                                    if settings.get('image'):
+                                        change_image(song.icon)
                             print(f'{song.name=}\n{song.authors=}\n{radio.name=}')
+                            lastupdate = datetime.now()
+                            nowplaymode = "Track"
+                        elif settings.get('t_time', 2) and nowplaymode == "Track":
+                            r_time = (datetime.now() - lastupdate).total_seconds()
+                            if r_time >= song.total:
+                                rpc.repeat(song, settings, lastupdate)
+                                details = rpc.strsong(settings.get('re_details'), song)
+                                state = rpc.strsong(settings.get('re_state'), song)
+                                name.set(details)
+                                author.set(state)
+                                if settings.get('t_time', 2) == 1:
+                                    lastupdate = datetime.now()
+                                elif settings.get('t_time', 2) == 2:
+                                    nowplaymode = "Repeat"
+                                print(f'{song.name=}\n{song.authors=}\n{radio.name=}')
 
-                elif radio.done and radio.type == "radio":
-                    if radio.name != lastradio:
-                        Rpc.radio(radio=radio, settings=settings)
-                        if settings.get('on', False):
-                            if not nowindow:
-                                name.set('Играет поток:')
-                                author.set(radio.name)
-                                if settings.get('image'):
-                                    change_image('https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Wave.png')
-                        lastradio = radio.name
-                        nowplaymode = None
-                        print(f'{song.name=}\n{song.authors=}\n{radio.name=}')
+                    elif not song.done:
+                        radio.update()
+                        if radio.done and radio.type == 'radio':
+                            if radio.name != lastradio:
+                                rpc.radio(radio=radio, settings=settings)
+                                if settings.get('on', False):
+                                    if not nowindow:
+                                        details = rpc.strradio(settings.get('ww_details'), radio)
+                                        state = rpc.strradio(settings.get('ww_state'), radio)
+                                        name.set(details)
+                                        author.set(state)
+                                        if settings.get('image'):
+                                            change_image('https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Wave.png')
+                                lastradio = radio.name
+                                nowplaymode = None
+                                print(f'{song.name=}\n{song.authors=}\n{radio.name=}')
 
+                    else:
+                        if nowplaymode != 'None':
+                            rpc.nodata(settings)
+                            nowplaymode = 'None'
+                            if settings.get('on', False):
+                                if not nowindow:
+                                    details = settings.get('no_details')
+                                    state = settings.get('no_state')
+                                    name.set(details)
+                                    author.set(state)
+                                    if settings.get('image'):
+                                        change_image('https://music.yandex.ru/blocks/playlist-cover/playlist-cover_no_cover4.png')
+                            print(f'[Song] {song.error}')
+                            print(f'[Radio] {radio.error}')
                 else:
-                    if nowplaymode != 'None':
-                        Rpc.nodata(settings)
-                        nowplaymode = 'None'
-                        if settings.get('on', False):
-                            if not nowindow:
-                                name.set('Неизвестный трек')
-                                author.set('')
-                                if settings.get('image'):
-                                    change_image('https://music.yandex.ru/blocks/playlist-cover/playlist-cover_no_cover4.png')
-                        print(f'[Song] {song.error}')
-                        print(f'[Radio] {radio.error}')
+                    rpc.clear()
+                    lasttrack = lastradio = nowplaymode = None
             else:
-                Rpc.clear()
-                lasttrack = lastradio = nowplaymode = None
+                sleep(3)
         except Exception as e:
-            print(f"[FATAL] {e}")
-            continue
+            if 'Event loop is closed' in str(e) or 'The pipe was closed' in str(e):
+                if settings.get("image"):
+                    change_image('https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Icon.png')
+                rpc = None
+                app_var.set(False)
+                name.set('Соединение с Discord разорвано')
+                author.set('Пожалуйста переподключитесь')
+            else:
+                print(f"[FATAL] {str(e)}")
         sleep(settings.get('ping', 1))
 
 if __name__ == "__main__":

@@ -54,7 +54,7 @@ def check_settings():
     except (FileNotFoundError, json.JSONDecodeError):
         return False
 
-def load_settings():
+def load_settings() -> dict:
     if not check_settings():
         save_settings(default)
     settings_path = get_settings_path()
@@ -62,7 +62,7 @@ def load_settings():
         settings = json.load(file)
     return settings
 
-def save_settings(settings):
+def save_settings(settings: dict):
     settings_path = get_settings_path()
     with open(settings_path, 'w') as file:
         json.dump(settings, file, indent=4)

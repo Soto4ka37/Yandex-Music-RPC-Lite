@@ -1,4 +1,4 @@
-import datetime
+from time import time
 from pypresence import Presence
 from modules.data import get_icon_path
 icon_path = get_icon_path()
@@ -29,6 +29,7 @@ class RPC:
             return text
 
         edited_text = text
+        edited_text = edit(edited_text, "$radioname", str(song.description))
         edited_text = edit(edited_text, "$name", str(song.name))
         edited_text = edit(edited_text, "$authors", str(song.authors))
         edited_text = edit(edited_text, "$album", str(song.album))
@@ -38,26 +39,11 @@ class RPC:
 
         return edited_text
 
-
-    def strradio(self, text: str, radio):
-        if not text:
-            return None
-        def edit(text, string, param):
-            if param:
-                if string in text:
-                    text = text.replace(string, param)
-            return text
-
-        edited_text = text
-        edited_text = edit(edited_text, "$radioname", str(radio.name))
-
-        return edited_text
-
     def update(self, song, settings):
         end = None
         t_time = settings.get('t_time', 2)
         if t_time:
-            end = int((datetime.datetime.now() + datetime.timedelta(minutes=song.minutes, seconds=song.seconds)).timestamp())
+            end = int(time() + song.seconds + song.minutes * 60)
         details = self.strsong(settings.get('tr_details'), song)
         state = self.strsong(settings.get('tr_state'), song)
         large_text = self.strsong(settings.get('tr_large_image'), song)
@@ -78,9 +64,9 @@ class RPC:
         end = None
         t_time = settings.get('t_time', 2)
         if t_time == 2:
-            start = int(lastupdate.timestamp())
+            start = int(lastupdate)
         elif t_time == 1:
-            end = int((datetime.datetime.now() + datetime.timedelta(minutes=song.minutes, seconds=song.seconds)).timestamp())
+            end = int(time() + song.seconds + song.minutes * 60)
         details = self.strsong(settings.get('re_details'), song)
         state = self.strsong(settings.get('re_state'), song)
         large_text = self.strsong(settings.get('re_large_image'), song)
@@ -97,15 +83,15 @@ class RPC:
             start=start
         )   
 
-    def radio(self, radio, settings):
+    def song(self, song, settings):
         w_time = settings.get('w_time', True)
         start = None
         if w_time:
-            start = int((datetime.datetime.now()).timestamp())
-        details = self.strradio(settings.get('ww_details'), radio)
-        state = self.strradio(settings.get('ww_state'), radio)
-        large_text = self.strradio(settings.get('ww_large_image'), radio)
-        small_text = self.strradio(settings.get('ww_small_image'), radio)
+            start = int(time())
+        details = self.strsong(settings.get('ww_details'), song)
+        state = self.strsong(settings.get('ww_state'), song)
+        large_text = self.strsong(settings.get('ww_large_image'), song)
+        small_text = self.strsong(settings.get('ww_small_image'), song)
         self.rpc.update(
             details=details,
             state=state, 
@@ -118,7 +104,7 @@ class RPC:
 
     def nodata(self, settings):
         n_clear = settings.get('n_clear', False)
-        time = int(datetime.datetime.now().timestamp())
+        time = int(time())
         details = settings.get('no_details')
         state = settings.get('no_state')
         large_text = settings.get('no_large_image')

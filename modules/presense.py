@@ -1,7 +1,5 @@
 from time import time
 from pypresence import Presence
-from modules.data import get_icon_path
-icon_path = get_icon_path()
 
 class RPC:
     def __init__(self):

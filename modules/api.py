@@ -36,69 +36,52 @@ def getclient():
         client = Client(token)
     return client
 
-class Radio:
-    def __init__(self, client):
-        if not client:
-            raise Exception('Нет клиента, для начала выполните run()')
+class Song:
+    def __init__(self, client: Client):
         self.client = client
-        self.update()
 
     def update(self):
         try:
             queue_list = self.client.queues_list()[0]
+            self.type = queue_list.context.type
+            self.description = queue_list.context.description
+            self.partdone = True
+            try:
+                queue = self.client.queue(queue_list.id)
+                last_track_id = queue.get_current_track()
+                last_track = last_track_id.fetch_track()
+                duration = last_track.duration_ms
+                duration_min = (duration // (1000 * 60)) % 60
+                duration_sec = (duration // 1000) % 60
+                duration_raw = duration // 1000
+                album = last_track.albums
 
-            self.type = queue_list["context"]["type"]
-            self.name = queue_list["context"]["description"]
-            self.done = True
-            self.error = None
-        except Exception as e:
-            if str(e) not in ['Timed out', 'None', 'Bad Gateway']:
-                self.error = e
-                self.done = False
-                self.type = None
-                self.name = None
-
-class Song:
-    def __init__(self, client):
-        if not client:
-            raise Exception('Нет клиента, для начала выполните run()')
-        self.client = client
-        self.update()
-
-    def update(self):
-        try:
-            queue = self.client.queue(self.client.queues_list()[0].id)
-            last_track_id = queue.get_current_track()
-            last_track = last_track_id.fetch_track()
-            duration = last_track.duration_ms
-            duration_min = (duration // (1000 * 60)) % 60
-            duration_sec = (duration // 1000) % 60
-            duration_raw = duration // 1000
-            album = last_track.albums
-
-            self.type = 'track'  # Тип
-            self.name = last_track.title  # Название трека
-            self.album = album[0]['title']  # Название альбома
-            self.count = album[0]['track_count']  # Число треков в альбоме
-            self.authors = ', '.join(last_track.artists_name())  # Исполнители
-            self.link = f"https://music.yandex.ru/album/{last_track['albums'][0]['id']}/track/{last_track['id']}/"  # Ссылка на трек
-            self.icon = "https://" + last_track.cover_uri.replace("%%", "200x200")  # Картинка альбома
-            self.minutes = duration_min  # Длина в минутах
-            self.seconds = duration_sec  # Длина в секундах (Остаток от минут)
-            self.total = duration_raw  # Длина в секундах
-            self.done = True
-            self.error = None
-        except Exception as e:
-            if str(e) not in ['Timed out', 'None', 'Bad Gateway']:
-                self.error = e
-                self.done = False
-                self.type = None
-                self.name = None
-                self.album = None
-                self.count = None
-                self.authors = None
-                self.link = None
-                self.icon = None
-                self.minutes = None
-                self.seconds = None
-                self.total = None
+                self.type = 'track'
+                self.name = last_track.title
+                self.album = album[0].title
+                self.count = album[0].track_count
+                self.authors = ', '.join(last_track.artists_name())
+                self.link = f"https://music.yandex.ru/track/{last_track['id']}/"
+                self.icon = "https://" + last_track.cover_uri.replace("%%", "200x200")
+                self.minutes = duration_min
+                self.seconds = duration_sec
+                self.total = duration_raw
+                self.fulldone = True
+                self.error = None
+            except Exception as e:
+                if str(e) not in ('Timed out', 0, 'Bad Gateway'):
+                    self.fulldone = False
+                    self.name = None
+                    self.album = None
+                    self.count = None
+                    self.authors = None
+                    self.link = None
+                    self.icon = None
+                    self.minutes = None
+                    self.seconds = None
+                    self.total = None
+        except:
+            self.error = str(e)
+            self.type = None
+            self.description = None
+            self.partdone = False

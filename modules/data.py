@@ -34,14 +34,14 @@ default = {
     "token": "0"
 }
 
-def get_settings_path():
+def get_settings_path() -> str:
     appdata_path = os.getenv('APPDATA')
     ym_rpc_dir = os.path.join(appdata_path, 'YM-RPC')
     if not os.path.exists(ym_rpc_dir):
         os.makedirs(ym_rpc_dir)
     return os.path.join(ym_rpc_dir, 'data.json')
 
-def check_settings():
+def check_settings() -> bool:
     settings_path = get_settings_path()
     try:
         with open(settings_path, 'r') as file:
@@ -67,7 +67,7 @@ def save_settings(settings: dict):
     with open(settings_path, 'w') as file:
         json.dump(settings, file, indent=4)
 
-def get_icon_path():
+def get_icon_path() -> str:
     appdata_path = os.getenv('APPDATA')
     ym_rpc_dir = os.path.join(appdata_path, 'YM-RPC')
     return os.path.join(ym_rpc_dir, 'icon.ico')

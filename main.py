@@ -1,36 +1,93 @@
 version = "v8.2.3"
-import os
 from time import sleep, time
-from threading import Thread
 
+import traceback
+import os
+from threading import Thread
 import pystray
 import webbrowser
 import requests
 import tkinter as tk
-from tkinter.ttk import Button, Spinbox, Radiobutton, Checkbutton, Label, Entry
+from tkinter.ttk import Button, Spinbox, Radiobutton, Checkbutton, Label, Entry, Scrollbar
 from PIL import Image, ImageTk
 from io import BytesIO
+from platform import system, version as v
 
+
+from modules.debug import Debug
+Debug.add('[ОТКЛАДКА ЗАПУЩЕНА]')
 from modules.data import save_settings, load_settings, get_icon_path, get_icon
-from modules.api import getclient, Song
+from modules.api import getclient, API
 from modules.presense import RPC
 from modules.update import check_updates
-
 lastclick = 0
 mainloop = True
-settings_open = settings_text_open = need_notify = nowindow = rpc = None
+settings_open = settings_text_open = need_notify = debug_opened = nowindow = rpc = None # Ебучие глобальные переменные
 
 settings = load_settings()
-
 icon_path = get_icon_path()
+
+Debug.add(f"Операционная система: {system()} {v()}")
 if not os.path.exists(icon_path):
     get_icon()
 
 if settings.get('update'):
     check_updates(version)
 
+
 def gui():
+    '''
+    Интерфейс
+    '''
     global name, author, change_image, show_window, app_var
+    def open_debug():
+        class DebugWindow:
+            def __init__(self, root: tk.Tk):
+                global debug_opened
+                debug_opened = True
+                self.root = root
+                self.root.title("Меню откладки")
+
+                self.text_area = tk.Text(root, wrap="word", state="normal", height=25, width=40)
+                initial_text = Debug.get_str()
+                self.text_area.insert("1.0", initial_text)
+                self.text_area.config(state="disabled")
+                
+                scroll_y = Scrollbar(root, orient="vertical", command=self.text_area.yview)
+                scroll_y.grid(row=0, column=1, sticky="nsew")
+                self.text_area.config(yscrollcommand=scroll_y.set)
+                
+                copy_button = Button(root, text="Копировать", command=self.copy_text)
+                copy_button.grid(row=1, column=0, pady=5)
+                root.grid_rowconfigure(0, weight=1)
+                root.grid_columnconfigure(0, weight=1)
+                self.text_area.grid(row=0, column=0, columnspan=2, sticky="nsew")
+
+                self.root.protocol("WM_DELETE_WINDOW", self.close)
+                self.update_text()
+
+            def close(self):
+                global debug_opened
+                debug_opened = False
+                self.root.destroy()
+
+            def copy_text(self):
+                self.text_area.tag_add("sel", "1.0", "end")
+                self.text_area.focus_set()
+                self.text_area.event_generate("<<Copy>>")
+            def update_text(self):
+                new_text = Debug.get_str()
+                self.text_area.config(state="normal")
+                self.text_area.delete("1.0", "end")
+                self.text_area.insert("1.0", new_text)
+                self.text_area.config(state="disabled")
+                self.root.after(5000, self.update_text)
+        if debug_opened:
+            return
+        debug = tk.Tk()
+        DebugWindow(debug)
+
+
     def open_text_settings():
         def close_settings_window():
             global settings_text_open, settings_text_window
@@ -330,7 +387,7 @@ def gui():
                 return
             lastclick = time()
             name.set("Загрузка...")
-            author.set('Подключение к Discord...')
+            author.set('Подключение к Discord.')
             if settings.get("image"):
                 change_image('https://music.yandex.ru/blocks/playlist-cover/playlist-cover_no_cover4.png')
             rpc = RPC()
@@ -344,7 +401,7 @@ def gui():
                 settings['on'] = False
                 save_settings(settings)
                 return
-            author.set('Инициализация...')
+            author.set('Ожидание ответа от API')
             settings["on"] = True
             save_settings(settings)
         else:
@@ -355,7 +412,7 @@ def gui():
                 pass
             save_settings(settings)
 
-    def change_image(url):
+    def change_image(url: str):
         response = requests.get(url)
         image_data = response.content
 
@@ -383,7 +440,7 @@ def gui():
         nowindow = False
         window.after(0,window.deiconify)
 
-    def opet_github_issues():
+    def open_github_issues():
         webbrowser.open("https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/issues")
 
     def open_github():
@@ -436,11 +493,14 @@ def gui():
     change_image('https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Icon.png')
 
     menu = tk.Menu(window)  
-    new_item = tk.Menu(menu, tearoff=0)  
-    new_item.add_command(label='Базовые настройки', command=open_settings)  
-    new_item.add_command(label='Редактор текста статуса', command=open_text_settings)  
-    menu.add_cascade(label='Настройки', menu=new_item) 
-    menu.add_cascade(label='Сообщить об ошибке', command=opet_github_issues) 
+    m = tk.Menu(menu, tearoff=0)  
+    m.add_command(label='Базовые настройки', command=open_settings)  
+    m.add_command(label='Редактор текста статуса', command=open_text_settings)  
+    menu.add_cascade(label='Настройки', menu=m) 
+    m = tk.Menu(menu, tearoff=0)  
+    m.add_command(label='Откладка', command=open_debug)  
+    m.add_command(label='Сообщить об ошибке', command=open_github_issues)  
+    menu.add_cascade(label='Откладка', men=m) 
     window.config(menu=menu)  
     image_label.grid(row=0, column=0, rowspan=3, sticky="w", padx=5, pady=5)
     app_checkbox.grid(row=0, column=1, sticky="w", padx=5)
@@ -465,7 +525,7 @@ def presense():
     global lasttrack, lastradio, nowplaymode, rpc, icon, need_notify, app_var
     lasttrack = lastradio = nowplaymode = None
     client = getclient()
-    song = Song(client)
+    song = API(client)
 
     while mainloop:
         if need_notify:
@@ -484,13 +544,12 @@ def presense():
                             rpc.update(song, settings)
                             if settings.get('on'):
                                 if not nowindow:
-                                    details = rpc.strsong(settings.get('tr_details'), song)
-                                    state = rpc.strsong(settings.get('tr_state'), song)
+                                    details = rpc.param_to_text(settings.get('tr_details'), song)
+                                    state = rpc.param_to_text(settings.get('tr_state'), song)
                                     name.set(details)
                                     author.set(state)
                                     if settings.get('image'):
                                         change_image(song.icon)
-                            print(f'[ОБНОВЛЕНЫ ДАННЫЕ]\n{song.name=}\n{song.authors=}\n{song.type=}\n{song.description=}\n')
                             lastupdate = time()
                             nowplaymode = 1
 
@@ -498,30 +557,29 @@ def presense():
                             r_time = (time() - lastupdate)
                             if r_time >= song.total:
                                 rpc.repeat(song, settings, lastupdate)
-                                details = rpc.strsong(settings.get('re_details'), song)
-                                state = rpc.strsong(settings.get('re_state'), song)
-                                name.set(details)
-                                author.set(state)
+                                if not nowindow:
+                                    details = rpc.param_to_text(settings.get('re_details'), song)
+                                    state = rpc.param_to_text(settings.get('re_state'), song)
+                                    name.set(details)
+                                    author.set(state)
                                 if settings.get('t_time', 2) == 1:
                                     lastupdate = time()
                                 elif settings.get('t_time', 2) == 2:
                                     nowplaymode = 2
-                                print(f'[ПОВТОР] Статус обновлён на повтор')
 
                     elif song.partdone and song.type and song.type == 'radio':
                             if song.description != lastradio:
                                 rpc.song(song=song, settings=settings)
                                 if settings.get('on'):
                                     if not nowindow:
-                                        details = rpc.strsong(settings.get('ww_details'), song)
-                                        state = rpc.strsong(settings.get('ww_state'), song)
+                                        details = rpc.param_to_text(settings.get('ww_details'), song)
+                                        state = rpc.param_to_text(settings.get('ww_state'), song)
                                         name.set(details)
                                         author.set(state)
                                         if settings.get('image'):
                                             change_image('https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Wave.png')
                                 lastradio = song.description
                                 nowplaymode = None
-                                print(f'[ОБНОВЛЕНЫ ДАННЫЕ]\n{song.name=}\n{song.authors=}\n{song.type=}\n{song.description=}\n')
                     else:
                         if nowplaymode != 0:
                             rpc.nodata(settings)
@@ -534,12 +592,13 @@ def presense():
                                     author.set(state)
                                     if settings.get('image'):
                                         change_image('https://music.yandex.ru/blocks/playlist-cover/playlist-cover_no_cover4.png')
-                            print(f'[ОБНОВЛЕНЫ ДАННЫЕ]\n{song.name=}\n{song.authors=}\n{song.type=}\n{song.description=}\n\n{song.error=}\n')
+                    sleep(settings.get('ping'))
                 else:
                     rpc.clear()
                     lasttrack = lastradio = nowplaymode = None
+                    sleep(settings.get('ping') + 2)
             else:
-                sleep(3)
+                sleep(settings.get('ping') + 2)
         except Exception as e:
             if 'Event loop is closed' in str(e) or 'The pipe was closed' in str(e):
                 if settings.get("image"):
@@ -548,8 +607,12 @@ def presense():
                 app_var.set(False)
                 name.set('Соединение с Discord разорвано')
                 author.set('Пожалуйста переподключитесь')
-            print(f'[FATAL] {str(e)}')
-        sleep(settings.get('ping', 1))
+                Debug.add(f'[ОШИБКА]\nСоединение с дискордом разорвано\n{e}')
+            else:
+                error = traceback.format_exc()
+                error = f'[КРИТИЧЕСКАЯ ОШИБКА]\n{error}'
+                Debug.add(error)
+            sleep(2)
 
 if __name__ == "__main__":
     t1 = Thread(target=presense)

@@ -3,30 +3,31 @@ from tkinter import messagebox
 import sys
 from modules.data import save_settings, load_settings
 
-def getclient():
-    def gettoken(settings):
-        token = settings.get('token')
+def gettoken(settings: dict) -> str:
+    token = settings.get('token')
+    if not token or len(token) <= 3:
+        try:
+            from modules.token.wx import get_token
+            token = get_token()
+            settings['token'] = token
+        except Exception as e:
+            chrome_err = str(e)
         if not token or len(token) <= 3:
             try:
-                from modules.token.wx import get_token
+                from modules.token.chrome import get_token
                 token = get_token()
                 settings['token'] = token
+                save_settings(settings)
             except Exception as e:
-                chrome_err = str(e)
+                err = str(e)
             if not token or len(token) <= 3:
-                try:
-                    from modules.token.chrome import get_token
-                    token = get_token()
-                    settings['token'] = token
-                    save_settings(settings)
-                except Exception as e:
-                    err = str(e)
-                if not token or len(token) <= 3:
-                    messagebox.showerror("Ошибка", f"Не удалось получить токен!\n\nСпособ от KysTik31: {err}\nСпособ через Google Chrome: {chrome_err}")
-                    sys.exit()   
-        settings['token'] = token
-        save_settings(settings)
-        return token
+                messagebox.showerror("Ошибка", f"Не удалось получить токен!\n\nСпособ от KysTik31: {err}\nСпособ через Google Chrome: {chrome_err}")
+                sys.exit()   
+    settings['token'] = token
+    save_settings(settings)
+    return token
+
+def getclient() -> Client:
     settings = load_settings()
     token = gettoken(settings)
     try:
@@ -36,7 +37,7 @@ def getclient():
         client = Client(token)
     return client
 
-class Song:
+class API:
     def __init__(self, client: Client):
         self.client = client
 

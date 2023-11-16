@@ -15,7 +15,7 @@ def is_active(driver):
         return False
 
 
-def get_token():
+def get_token() -> str:
     capabilities = DesiredCapabilities.CHROME
     capabilities["loggingPrefs"] = {"performance": "ALL"}
     capabilities['goog:loggingPrefs'] = {'performance': 'ALL'}

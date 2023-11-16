@@ -19,7 +19,7 @@ class TokenFrame(Frame):
         self.Destroy()
 
 
-def get_token():
+def get_token() -> str:
     app = App(redirect=False)
     token_frame = TokenFrame(None)
     token_frame.browser.LoadURL(

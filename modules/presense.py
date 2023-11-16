@@ -1,23 +1,28 @@
 from time import time
 from pypresence import Presence
+from modules.api import API
+from modules.debug import Debug
 
 class RPC:
     def __init__(self):
+            debug = '[ПОДКЛЮЧЕНИЕ К ДИСКОРДУ]\n'
             try:
                 self.rpc = Presence(client_id=1116090392123822080)
                 self.rpc.connect()
-            except:
+                debug = debug + 'Удачно'
+            except Exception as e:
                 self.rpc = None
+                debug = debug + f'Ошибка: {e}'
+            Debug.add(debug)
 
-
-    def button(self, song, settings):
+    def __button(self, song: API, settings: dict):
         t_button = settings.get('t_button', True)
         button = None
         if t_button:
             button = [{"label": "Слушать", "url": f"{song.link}"}]
         return button
 
-    def strsong(self, text: str, song):
+    def param_to_text(self, text: str, song: API) -> str:
         if not text:
             return None
         def edit(text, string, param):
@@ -37,15 +42,15 @@ class RPC:
 
         return edited_text
 
-    def update(self, song, settings):
+    def update(self, song: API, settings: dict):
         end = None
         t_time = settings.get('t_time', 2)
         if t_time:
             end = int(time() + song.seconds + song.minutes * 60)
-        details = self.strsong(settings.get('tr_details'), song)
-        state = self.strsong(settings.get('tr_state'), song)
-        large_text = self.strsong(settings.get('tr_large_image'), song)
-        small_text = self.strsong(settings.get('tr_small_image'), song)
+        details = self.param_to_text(settings.get('tr_details'), song)
+        state = self.param_to_text(settings.get('tr_state'), song)
+        large_text = self.param_to_text(settings.get('tr_large_image'), song)
+        small_text = self.param_to_text(settings.get('tr_small_image'), song)
         self.rpc.update(
             details=details,
             state=state, 
@@ -53,11 +58,12 @@ class RPC:
             small_text=small_text,
             large_image=song.icon,
             small_image='logo',
-            buttons=self.button(song, settings),
+            buttons=self.__button(song, settings),
             end=end
         )
+        Debug.add(f'[DISCORD] [Обновлён статус]\n{song.name=}\n{song.authors=}\n{song.description=}')
 
-    def repeat(self, song, settings, lastupdate):
+    def repeat(self, song: API, settings: dict, lastupdate):
         start = None
         end = None
         t_time = settings.get('t_time', 2)
@@ -65,10 +71,10 @@ class RPC:
             start = int(lastupdate)
         elif t_time == 1:
             end = int(time() + song.seconds + song.minutes * 60)
-        details = self.strsong(settings.get('re_details'), song)
-        state = self.strsong(settings.get('re_state'), song)
-        large_text = self.strsong(settings.get('re_large_image'), song)
-        small_text = self.strsong(settings.get('re_small_image'), song)
+        details = self.param_to_text(settings.get('re_details'), song)
+        state = self.param_to_text(settings.get('re_state'), song)
+        large_text = self.param_to_text(settings.get('re_large_image'), song)
+        small_text = self.param_to_text(settings.get('re_small_image'), song)
         self.rpc.update(
             details=details,
             state=state, 
@@ -76,20 +82,21 @@ class RPC:
             small_text=small_text,
             large_image=song.icon,
             small_image='repeat',
-            buttons=self.button(song, settings),
+            buttons=self.__button(song, settings),
             end=end,
             start=start
         )   
+        Debug.add(f'[DISCORD] [Обновлён статус]\nРежим повтора активирован')
 
-    def song(self, song, settings):
+    def song(self, song: API, settings: dict):
         w_time = settings.get('w_time', True)
         start = None
         if w_time:
             start = int(time())
-        details = self.strsong(settings.get('ww_details'), song)
-        state = self.strsong(settings.get('ww_state'), song)
-        large_text = self.strsong(settings.get('ww_large_image'), song)
-        small_text = self.strsong(settings.get('ww_small_image'), song)
+        details = self.param_to_text(settings.get('ww_details'), song)
+        state = self.param_to_text(settings.get('ww_state'), song)
+        large_text = self.param_to_text(settings.get('ww_large_image'), song)
+        small_text = self.param_to_text(settings.get('ww_small_image'), song)
         self.rpc.update(
             details=details,
             state=state, 
@@ -99,10 +106,11 @@ class RPC:
             small_image='logo',
             start=start
         )
+        Debug.add(f'[DISCORD] [Обновлён статус]\n{song.name=}\n{song.authors=}\n{song.description=}')
 
-    def nodata(self, settings):
+    def nodata(self, settings: dict):
         n_clear = settings.get('n_clear', False)
-        time = int(time())
+        timestamp = int(time())
         details = settings.get('no_details')
         state = settings.get('no_state')
         large_text = settings.get('no_large_image')
@@ -112,12 +120,15 @@ class RPC:
                 state=state, 
                 large_text=large_text,
                 large_image='logo',
-                start=time
+                start=timestamp
             )
         else:
             self.rpc.clear()
+        Debug.add(f'[DISCORD] [Обновлён статус]\nНеизвестный трек')
     def clear(self):
         self.rpc.clear()
+        Debug.add(f'[DISCORD] [Статус очищен]')
 
     def disconnect(self):
         self.rpc.close()
+        Debug.add(f'[DISCORD] Соединение разоравно пользователем')

@@ -22,7 +22,7 @@ from modules.presense import RPC
 from modules.update import check_updates
 lastclick = 0
 mainloop = True
-settings_open = settings_text_open = need_notify = debug_opened = nowindow = rpc = None # Ебучие глобальные переменные
+settings_open = settings_text_open = need_notify = debug_opened = deb_window = nowindow = settings_text_window = settings_window = rpc = None # Ебучие глобальные переменные
 
 settings = load_settings()
 icon_path = get_icon_path()
@@ -41,6 +41,7 @@ def gui():
     '''
     global name, author, change_image, show_window, app_var
     def open_debug():
+        global deb_window
         class DebugWindow:
             def __init__(self, root: tk.Tk):
                 global debug_opened
@@ -85,7 +86,7 @@ def gui():
         if debug_opened:
             return
         debug = tk.Tk()
-        DebugWindow(debug)
+        deb_window = DebugWindow(debug)
 
 
     def open_text_settings():
@@ -425,6 +426,15 @@ def gui():
 
     def quit_window(icon, item):
         global mainloop
+        if settings_text_open:
+            settings_text_window.destroy()
+            settings_text_open = False
+        if settings_open:
+            settings_window.destroy()
+            settings_open = False
+        if debug_opened:
+            deb_window.root.destroy()
+            debug_opened = False
         settings['on'] = False
         mainloop = False
         show_window(icon, item)
@@ -447,17 +457,16 @@ def gui():
         webbrowser.open("https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/")
 
     def withdraw_window():  
-        global need_notify, icon, settings_window, settings_text_window, settings_open, nowindow, settings_text_open
-        try:
+        global need_notify, icon, settings_window, settings_text_window, settings_open, nowindow, settings_text_open, debug_opened, deb_window
+        if settings_text_open:
             settings_text_window.destroy()
             settings_text_open = False
-        except:
-            pass
-        try:
+        if settings_open:
             settings_window.destroy()
             settings_open = False
-        except:
-            pass
+        if debug_opened:
+            deb_window.root.destroy()
+            debug_opened = False
         if settings.get('on', False) and settings.get('background'):
             name.set('Фоновый режим завершён')
             author.set('Данные обновятся при смене трека')

@@ -21,6 +21,19 @@ default = {
     "no_state": "",
     "no_large_image": "RPC by Soto4ka37",
 
+    "first_button_label": "Слушать",
+    "first_button_url": "$track-url",
+    "second_button_label": "",
+    "second_button_url": "",
+    "b1_track": True,
+    "b1_repeat": True,
+    "b1_wave": False,
+    "b1_nodata": False,
+    "b2_track": False,
+    "b2_repeat": False,
+    "b2_wave": False,
+    "b2_nodata": False,
+
     "ping": 1,
     "t_time": 2,
     "t_button": True,
@@ -34,6 +47,12 @@ default = {
     "token": "0"
 }
 
+
+def get_icon_path() -> str:
+    appdata_path = os.getenv('APPDATA')
+    ym_rpc_dir = os.path.join(appdata_path, 'YM-RPC')
+    return os.path.join(ym_rpc_dir, 'icon.ico')
+
 def get_settings_path() -> str:
     appdata_path = os.getenv('APPDATA')
     ym_rpc_dir = os.path.join(appdata_path, 'YM-RPC')
@@ -41,14 +60,16 @@ def get_settings_path() -> str:
         os.makedirs(ym_rpc_dir)
     return os.path.join(ym_rpc_dir, 'data.json')
 
+icon_path = get_icon_path()
+settings_path = get_settings_path()
+
 def check_settings() -> bool:
-    settings_path = get_settings_path()
     try:
         with open(settings_path, 'r') as file:
             settings = json.load(file)
         for key in default.keys():
             if key not in settings:
-                messagebox.showerror("Данные утеряны", "Файл хранящий данные был повреждён. Насройки утеряны. Требуется повторная авторизация.")
+                messagebox.showerror("Ошибка чтения сохранний", "Данные используемые программой повреждены или устарели. Настройки утеряны.")
                 return False
         return True
     except (FileNotFoundError, json.JSONDecodeError):
@@ -57,23 +78,15 @@ def check_settings() -> bool:
 def load_settings() -> dict:
     if not check_settings():
         save_settings(default)
-    settings_path = get_settings_path()
     with open(settings_path, 'r') as file:
         settings = json.load(file)
     return settings
 
 def save_settings(settings: dict):
-    settings_path = get_settings_path()
     with open(settings_path, 'w') as file:
         json.dump(settings, file, indent=4)
 
-def get_icon_path() -> str:
-    appdata_path = os.getenv('APPDATA')
-    ym_rpc_dir = os.path.join(appdata_path, 'YM-RPC')
-    return os.path.join(ym_rpc_dir, 'icon.ico')
-
 def get_icon():
-    icon_path = get_icon_path()
     if not os.path.exists(icon_path):
         response = requests.get("https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Icon.ico")
         if response.status_code == 200:
@@ -81,4 +94,3 @@ def get_icon():
                 file.write(response.content)
         else:
             sys.exit()
-

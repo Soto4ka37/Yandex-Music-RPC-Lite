@@ -2,14 +2,17 @@ from yandex_music import Client
 from tkinter import messagebox
 import sys
 from modules.data import save_settings, load_settings
+from modules.debug import Debug
 
 def gettoken(settings: dict) -> str:
     token = settings.get('token')
     if not token or len(token) <= 3:
+        Debug.add('[USER]\nЗапущена функция получения токена\nЭто первый запуск?')
         try:
             from modules.token.wx import get_token
             token = get_token()
             settings['token'] = token
+            save_settings(settings)
         except Exception as e:
             chrome_err = str(e)
         if not token or len(token) <= 3:
@@ -23,8 +26,6 @@ def gettoken(settings: dict) -> str:
             if not token or len(token) <= 3:
                 messagebox.showerror("Ошибка", f"Не удалось получить токен!\n\nСпособ от KysTik31: {err}\nСпособ через Google Chrome: {chrome_err}")
                 sys.exit()   
-    settings['token'] = token
-    save_settings(settings)
     return token
 
 def getclient() -> Client:

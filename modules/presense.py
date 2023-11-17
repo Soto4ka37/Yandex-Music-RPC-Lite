@@ -9,18 +9,30 @@ class RPC:
             try:
                 self.rpc = Presence(client_id=1116090392123822080)
                 self.rpc.connect()
-                debug = debug + 'Удачно'
+                debug = debug + 'Успешно подключено'
             except Exception as e:
                 self.rpc = None
-                debug = debug + f'Ошибка: {e}'
+                debug = debug + f'Неудачно. Ошибка: {e}'
             Debug.add(debug)
 
-    def __button(self, song: API, settings: dict):
+    def __button(self, song: API, settings: dict, mode: str):
         t_button = settings.get('t_button', True)
-        button = None
+
+        buttons = []
         if t_button:
-            button = [{"label": "Слушать", "url": f"{song.link}"}]
-        return button
+            for i in range(1, 3):
+                key = f'b{i}_{mode}'
+                if t_button and settings.get(key):
+                    label_key = f'first_button_label' if i == 1 else f'second_button_label'
+                    url_key = f'first_button_url' if i == 1 else f'second_button_url'
+
+                    label = self.param_to_text(settings.get(label_key, ''), song)
+                    url = self.param_to_text(settings.get(url_key, ''), song)
+
+                    if label and url:
+                        buttons.append({"label": label, "url": url})
+
+        return buttons if buttons else None
 
     def param_to_text(self, text: str, song: API) -> str:
         if not text:
@@ -38,8 +50,8 @@ class RPC:
         edited_text = edit(edited_text, "$album", str(song.album))
         edited_text = edit(edited_text, "$count", str(song.count))
         edited_text = edit(edited_text, "$minutes", str(song.minutes))
+        edited_text = edit(edited_text, "$track-url", str(song.link))
         edited_text = edit(edited_text, "$seconds", str(song.seconds).zfill(2))
-
         return edited_text
 
     def update(self, song: API, settings: dict):
@@ -58,7 +70,7 @@ class RPC:
             small_text=small_text,
             large_image=song.icon,
             small_image='logo',
-            buttons=self.__button(song, settings),
+            buttons=self.__button(song, settings, 'track'),
             end=end
         )
         Debug.add(f'[DISCORD] [Обновлён статус]\n{song.name=}\n{song.authors=}\n{song.description=}')
@@ -82,13 +94,13 @@ class RPC:
             small_text=small_text,
             large_image=song.icon,
             small_image='repeat',
-            buttons=self.__button(song, settings),
+            buttons=self.__button(song, settings, 'repeat'),
             end=end,
             start=start
         )   
         Debug.add(f'[DISCORD] [Обновлён статус]\nРежим повтора активирован')
 
-    def song(self, song: API, settings: dict):
+    def wave(self, song: API, settings: dict):
         w_time = settings.get('w_time', True)
         start = None
         if w_time:
@@ -104,11 +116,12 @@ class RPC:
             small_text=small_text,
             large_image='mywave',
             small_image='logo',
+            buttons=self.__button(song, settings, 'wave'),
             start=start
         )
         Debug.add(f'[DISCORD] [Обновлён статус]\n{song.name=}\n{song.authors=}\n{song.description=}')
 
-    def nodata(self, settings: dict):
+    def nodata(self, song: API, settings: dict):
         n_clear = settings.get('n_clear', False)
         timestamp = int(time())
         details = settings.get('no_details')
@@ -120,6 +133,7 @@ class RPC:
                 state=state, 
                 large_text=large_text,
                 large_image='logo',
+                buttons=self.__button(song, settings, 'nodata'),
                 start=timestamp
             )
         else:

@@ -1,4 +1,4 @@
-version = "v8.2.3"
+version = "v8.3"
 from time import sleep, time
 
 import traceback
@@ -16,30 +16,36 @@ from platform import system, version as v
 
 from modules.debug import Debug
 Debug.add('[ОТКЛАДКА ЗАПУЩЕНА]')
-from modules.data import save_settings, load_settings, get_icon_path, get_icon
+from modules.data import save_settings, load_settings, get_icon, default, icon_path 
 from modules.api import getclient, API
 from modules.presense import RPC
 from modules.update import check_updates
-lastclick = 0
-mainloop = True
-settings_open = settings_text_open = need_notify = debug_opened = deb_window = nowindow = settings_text_window = settings_window = rpc = None # Ебучие глобальные переменные
 
+mainloop = True # Флаг основного цикла
+main_window_opened = settings_opened = status_editor_opened = debug_opened = button_editor_opened = False # Состояния окон
+need_notify = False # Уведомление о сокрытии в трей
+rpc = None # Объект статуса дискорда (Создаётся при подключении через интерфейс)
+lastclick = 0 
+
+client = getclient()
 settings = load_settings()
-icon_path = get_icon_path()
 
-Debug.add(f"Операционная система: {system()} {v()}")
+Debug.add(f"Запущено на {system()} {v()}")
 if not os.path.exists(icon_path):
     get_icon()
 
 if settings.get('update'):
     check_updates(version)
 
-
 def gui():
     '''
     Интерфейс
     '''
     global name, author, change_image, show_window, app_var
+    def resetstatusdata():
+        '''Очищает состояние основного цикла и перезагружает статус'''
+        global lasttrack, lastradio, nowplaymode
+        lasttrack = lastradio = nowplaymode = None
     def open_debug():
         global deb_window
         class DebugWindow:
@@ -47,11 +53,11 @@ def gui():
                 global debug_opened
                 debug_opened = True
                 self.root = root
-                self.root.title("Меню откладки")
+                self.root.title("Журнал отладки (Debug)")
 
                 self.text_area = tk.Text(root, wrap="word", state="normal", height=25, width=40)
                 initial_text = Debug.get_str()
-                self.text_area.insert("1.0", initial_text)
+                self.text_area.insert("0.9", initial_text)
                 self.text_area.config(state="disabled")
                 
                 scroll_y = Scrollbar(root, orient="vertical", command=self.text_area.yview)
@@ -88,17 +94,15 @@ def gui():
         debug = tk.Tk()
         deb_window = DebugWindow(debug)
 
-
-    def open_text_settings():
+    def open_status_window():
         def close_settings_window():
-            global settings_text_open, settings_text_window
-            settings_text_open = False
+            global status_editor_opened, settings_text_window
+            status_editor_opened = False
             settings_text_window.destroy()
         def guide():
             webbrowser.open("https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/tree/master/assets/guide.md")
         def save():
-            global lasttrack, lastradio, nowplaymode
-            lasttrack = lastradio = nowplaymode = None
+            resetstatusdata()
             settings['tr_details'] = tr_details.get()
             settings['tr_state'] = tr_state.get()
             settings['tr_large_image'] = tr_large_image.get()
@@ -114,164 +118,296 @@ def gui():
             settings['no_details'] = no_details.get()
             settings['no_state'] = no_state.get()
             settings['no_large_image'] = no_large_image.get()
-            close_settings_window()
-        global settings_text_open, settings_text_window
-        if settings_text_open:
+        global status_editor_opened, settings_text_window
+        if status_editor_opened:
             return
         
         settings_text_window = tk.Toplevel(window)
         settings_text_window.title("Редактор текста статуса")
-        settings_text_open = True
+        status_editor_opened = True
         settings_text_window.protocol("WM_DELETE_WINDOW", close_settings_window)
+        n = 0
 
         btn = Button(settings_text_window, text="Список переменных", command=guide, width=39)  
-        btn.grid(row=0, column=0)  
+        btn.grid(row=n, column=0)  
         btn = Button(settings_text_window, text="Применить", command=save, width=17)  
-        btn.grid(row=0, column=1, sticky="w")  
+        btn.grid(row=n, column=1, sticky="w")
+        n += 1  
 
         lbl = Label(settings_text_window, text="При треке", font=("Arial Bold", 15))
-        lbl.grid(row=1, column=0, sticky="w")
+        lbl.grid(row=n, column=0, sticky="w")
+        n += 1  
 
         lbl = Label(settings_text_window, text="Верхняя строчка")
-        lbl.grid(row=2, column=1, sticky="w")
+        lbl.grid(row=n, column=1, sticky="w")
         tr_details = tk.StringVar()
         tr_details.set(settings.get('tr_details'))
         txt = Entry(settings_text_window, textvariable=tr_details, width=40) 
-        txt.grid(row=2, column=0, sticky="w", padx=2, pady=1)
+        txt.grid(row=n, column=0, sticky="w", padx=2, pady=1)
+        n += 1  
 
         lbl = Label(settings_text_window, text="Нижняя строчка")
-        lbl.grid(row=3, column=1, sticky="w")
+        lbl.grid(row=n, column=1, sticky="w")
         tr_state = tk.StringVar()
         tr_state.set(settings.get('tr_state'))
         txt = Entry(settings_text_window, textvariable=tr_state, width=40) 
-        txt.grid(row=3, column=0, sticky="w", padx=2, pady=1)
+        txt.grid(row=n, column=0, sticky="w", padx=2, pady=1)
+        n += 1  
 
         lbl = Label(settings_text_window, text="Большая картинка")
-        lbl.grid(row=4, column=1, sticky="w")
+        lbl.grid(row=n, column=1, sticky="w")
         tr_large_image = tk.StringVar()
         tr_large_image.set(settings.get('tr_large_image'))
         txt = Entry(settings_text_window, textvariable=tr_large_image, width=40) 
-        txt.grid(row=4, column=0, sticky="w", padx=2, pady=1)
+        txt.grid(row=n, column=0, sticky="w", padx=2, pady=1)
+        n += 1  
 
         lbl = Label(settings_text_window, text="Маленькая картинка")
-        lbl.grid(row=5, column=1, sticky="w")
+        lbl.grid(row=n, column=1, sticky="w")
         tr_small_image = tk.StringVar()
         tr_small_image.set(settings.get('tr_small_image'))
         txt = Entry(settings_text_window, textvariable=tr_small_image, width=40) 
-        txt.grid(row=5, column=0, sticky="w", padx=2, pady=1)
+        txt.grid(row=n, column=0, sticky="w", padx=2, pady=1)
+        n += 1  
 
         lbl = Label(settings_text_window, text="При повторе трека", font=("Arial Bold", 15))
-        lbl.grid(row=6, column=0, sticky="w")
+        lbl.grid(row=n, column=0, sticky="w")
+        n += 1  
 
         lbl = Label(settings_text_window, text="Верхняя строчка")
-        lbl.grid(row=7, column=1, sticky="w")
+        lbl.grid(row=n, column=1, sticky="w")
         re_details = tk.StringVar()
         re_details.set(settings.get('re_details'))
         txt = Entry(settings_text_window, textvariable=re_details, width=40) 
-        txt.grid(row=7, column=0, sticky="w", padx=2, pady=1)
+        txt.grid(row=n, column=0, sticky="w", padx=2, pady=1)
+        n += 1  
 
         lbl = Label(settings_text_window, text="Нижняя строчка")
-        lbl.grid(row=8, column=1, sticky="w")
+        lbl.grid(row=n, column=1, sticky="w")
         re_state = tk.StringVar()
         re_state.set(settings.get('re_state'))
         txt = Entry(settings_text_window, textvariable=re_state, width=40) 
-        txt.grid(row=8, column=0, sticky="w", padx=2, pady=1)
+        txt.grid(row=n, column=0, sticky="w", padx=2, pady=1)
+        n += 1  
 
         lbl = Label(settings_text_window, text="Большая картинка")
-        lbl.grid(row=9, column=1, sticky="w")
+        lbl.grid(row=n, column=1, sticky="w")
         re_large_image = tk.StringVar()
         re_large_image.set(settings.get('re_large_image'))
         txt = Entry(settings_text_window, textvariable=re_large_image, width=40) 
-        txt.grid(row=9, column=0, sticky="w", padx=2, pady=1)
+        txt.grid(row=n, column=0, sticky="w", padx=2, pady=1)
+        n += 1  
 
         lbl = Label(settings_text_window, text="Маленькая картинка")
-        lbl.grid(row=10, column=1, sticky="w")
+        lbl.grid(row=n, column=1, sticky="w")
         re_small_image = tk.StringVar()
         re_small_image.set(settings.get('re_small_image'))
         txt = Entry(settings_text_window, textvariable=re_small_image, width=40) 
-        txt.grid(row=10, column=0, sticky="w", padx=2, pady=1)
+        txt.grid(row=n, column=0, sticky="w", padx=2, pady=1)
+        n += 1  
 
         lbl = Label(settings_text_window, text="При потоке", font=("Arial Bold", 15))
-        lbl.grid(row=11, column=0, sticky="w")
+        lbl.grid(row=n, column=0, sticky="w")
+        n += 1  
 
         lbl = Label(settings_text_window, text="Верхняя строчка")
-        lbl.grid(row=12, column=1, sticky="w")
+        lbl.grid(row=n, column=1, sticky="w")
         ww_details = tk.StringVar()
         ww_details.set(settings.get('ww_details'))
         txt = Entry(settings_text_window, textvariable=ww_details, width=40) 
-        txt.grid(row=12, column=0, sticky="w", padx=2, pady=1)
+        txt.grid(row=n, column=0, sticky="w", padx=2, pady=1)
+        n += 1  
 
         lbl = Label(settings_text_window, text="Нижняя строчка")
-        lbl.grid(row=13, column=1, sticky="w")
+        lbl.grid(row=n, column=1, sticky="w")
         ww_state = tk.StringVar()
         ww_state.set(settings.get('ww_state'))
         txt = Entry(settings_text_window, textvariable=ww_state, width=40) 
-        txt.grid(row=13, column=0, sticky="w", padx=2, pady=1)
+        txt.grid(row=n, column=0, sticky="w", padx=2, pady=1)
+        n += 1  
 
         lbl = Label(settings_text_window, text="Большая картинка")
-        lbl.grid(row=14, column=1, sticky="w")
+        lbl.grid(row=n, column=1, sticky="w")
         ww_large_image = tk.StringVar()
         ww_large_image.set(settings.get('ww_large_image'))
         txt = Entry(settings_text_window, textvariable=ww_large_image, width=40) 
-        txt.grid(row=14, column=0, sticky="w", padx=2, pady=1)
+        txt.grid(row=n, column=0, sticky="w", padx=2, pady=1)
+        n += 1  
 
         lbl = Label(settings_text_window, text="Маленькая картинка")
-        lbl.grid(row=15, column=1, sticky="w")
+        lbl.grid(row=n, column=1, sticky="w")
         ww_small_image = tk.StringVar()
         ww_small_image.set(settings.get('ww_small_image'))
         txt = Entry(settings_text_window, textvariable=ww_small_image, width=40) 
-        txt.grid(row=15, column=0, sticky="w", padx=2, pady=1)
+        txt.grid(row=n, column=0, sticky="w", padx=2, pady=1)
+        n += 1  
 
         lbl = Label(settings_text_window, text="При неизвестном треке", font=("Arial Bold", 15))
-        lbl.grid(row=16, column=0, sticky="w")
+        lbl.grid(row=n, column=0, sticky="w")
+        n += 1  
 
         lbl = Label(settings_text_window, text="Верхняя строчка")
-        lbl.grid(row=17, column=1, sticky="w")
+        lbl.grid(row=n, column=1, sticky="w")
         no_details = tk.StringVar()
         no_details.set(settings.get('no_details'))
         txt = Entry(settings_text_window, textvariable=no_details, width=40) 
-        txt.grid(row=17, column=0, sticky="w", padx=2, pady=1)
+        txt.grid(row=n, column=0, sticky="w", padx=2, pady=1)
+        n += 1  
 
         lbl = Label(settings_text_window, text="Нижняя строчка")
-        lbl.grid(row=18, column=1, sticky="w")
+        lbl.grid(row=n, column=1, sticky="w")
         no_state = tk.StringVar()
         no_state.set(settings.get('no_state'))
         txt = Entry(settings_text_window, textvariable=no_state, width=40) 
-        txt.grid(row=18, column=0, sticky="w", padx=2, pady=1)
+        txt.grid(row=n, column=0, sticky="w", padx=2, pady=1)
+        n += 1  
 
         lbl = Label(settings_text_window, text="Большая картинка")
-        lbl.grid(row=19, column=1, sticky="w")
+        lbl.grid(row=n, column=1, sticky="w")
         no_large_image = tk.StringVar()
         no_large_image.set(settings.get('no_large_image'))
         txt = Entry(settings_text_window, textvariable=no_large_image, width=40) 
-        txt.grid(row=19, column=0, sticky="w", padx=2, pady=1)
+        txt.grid(row=n, column=0, sticky="w", padx=2, pady=1)
+        n += 1  
+    def open_button_window():
+        def close_button_window():
+            global button_editor_opened, button_window
+            button_editor_opened = False
+            button_window.destroy()
+        def guide():
+            webbrowser.open("https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/tree/master/assets/guide.md")
+        def save():
+            resetstatusdata()
+            settings['first_button_label'] = first_button_label.get()
+            settings['first_button_url'] = first_button_url.get()
+            settings['second_button_label'] = second_button_label.get()
+            settings['second_button_url'] = second_button_url.get()
+            settings['b1_track'] = b1_track_var.get()
+            settings['b1_repeat'] = b1_repeat_var.get()
+            settings['b1_wave'] = b1_wave_var.get()
+            settings['b1_nodata'] = b1_nodata_var.get()
+            settings['b2_track'] = b2_track_var.get()
+            settings['b2_repeat'] = b2_repeat_var.get()
+            settings['b2_wave'] = b2_wave_var.get()
+            settings['b2_nodata'] = b2_nodata_var.get()
+            save_settings(settings)
+        global button_editor_opened, button_window
+        if button_editor_opened:
+            return
+        button_window = tk.Toplevel(window)
+        button_window.title("Редактор кнопок")
+        button_editor_opened = True
+        button_window.protocol("WM_DELETE_WINDOW", close_button_window)
+        n = 0
+
+        btn = Button(button_window, text="Список переменных", command=guide, width=39)  
+        btn.grid(row=n, column=0)  
+        btn = Button(button_window, text="Применить", command=save, width=17)  
+        btn.grid(row=n, column=1, sticky="w")
+        n += 1  
+
+        lbl = Label(button_window, text="Первая кнопка", font=("Arial Bold", 15))
+        lbl.grid(row=n, column=0, sticky="w")
+        n += 1  
+
+        b1_track_var = tk.BooleanVar(value=settings.get('b1_track', True))
+        b1_track = Checkbutton(button_window, variable=b1_track_var, text="При треке")
+        b1_track.grid(row=n, column=0, sticky="w")
+        n += 1
+
+        b1_repeat_var = tk.BooleanVar(value=settings.get('b1_repeat', True))
+        b1_repeat = Checkbutton(button_window, variable=b1_repeat_var, text="При повторе трека")
+        b1_repeat.grid(row=n, column=0, sticky="w")
+        n += 1
+
+        b1_wave_var = tk.BooleanVar(value=settings.get('b1_wave', False))
+        b1_wave = Checkbutton(button_window, variable=b1_wave_var, text="При потоке")
+        b1_wave.grid(row=n, column=0, sticky="w")
+        n += 1
+
+        b1_nodata_var = tk.BooleanVar(value=settings.get('b1_nodata', False))
+        b1_nodata = Checkbutton(button_window, variable=b1_nodata_var, text="При неизвестном треке")
+        b1_nodata.grid(row=n, column=0, sticky="w")
+        n += 1
+
+        lbl = Label(button_window, text="Текст")
+        lbl.grid(row=n, column=1, sticky="w")
+        first_button_label = tk.StringVar()
+        first_button_label.set(settings.get('first_button_label', ''))
+        txt = Entry(button_window, textvariable=first_button_label, width=40) 
+        txt.grid(row=n, column=0, sticky="w", padx=2, pady=1)
+        n += 1  
+
+        lbl = Label(button_window, text="Ссылка")
+        lbl.grid(row=n, column=1, sticky="w")
+        first_button_url = tk.StringVar()
+        first_button_url.set(settings.get('first_button_url', ''))
+        txt = Entry(button_window, textvariable=first_button_url, width=40) 
+        txt.grid(row=n, column=0, sticky="w", padx=2, pady=1)
+        n += 1  
+
+        lbl = Label(button_window, text="Вторая кнопка", font=("Arial Bold", 15))
+        lbl.grid(row=n, column=0, sticky="w")
+        n += 1
+
+        b2_track_var = tk.BooleanVar(value=settings.get('b2_track', False))
+        b2_track = Checkbutton(button_window, variable=b2_track_var, text="При треке")
+        b2_track.grid(row=n, column=0, sticky="w")
+        n += 1
+
+        b2_repeat_var = tk.BooleanVar(value=settings.get('b2_repeat', False))
+        b2_repeat = Checkbutton(button_window, variable=b2_repeat_var, text="При повторе трека")
+        b2_repeat.grid(row=n, column=0, sticky="w")
+        n += 1
+
+        b2_wave_var = tk.BooleanVar(value=settings.get('b2_wave', False))
+        b2_wave = Checkbutton(button_window, variable=b2_wave_var, text="При потоке")
+        b2_wave.grid(row=n, column=0, sticky="w")
+        n += 1
+
+        b2_nodata_var = tk.BooleanVar(value=settings.get('b2_nodata', False))
+        b2_nodata = Checkbutton(button_window, variable=b2_nodata_var, text="При неизвестном треке")
+        b2_nodata.grid(row=n, column=0, sticky="w")
+        n += 1
+
+        lbl = Label(button_window, text="Текст")
+        lbl.grid(row=n, column=1, sticky="w")
+        second_button_label = tk.StringVar()
+        second_button_label.set(settings.get('second_button_label', ''))
+        txt = Entry(button_window, textvariable=second_button_label, width=40) 
+        txt.grid(row=n, column=0, sticky="w", padx=2, pady=1)
+        n += 1  
+
+        lbl = Label(button_window, text="Ссылка")
+        lbl.grid(row=n, column=1, sticky="w")
+        second_button_url = tk.StringVar()
+        second_button_url.set(settings.get('second_button_url', ''))
+        txt = Entry(button_window, textvariable=second_button_url, width=40) 
+        txt.grid(row=n, column=0, sticky="w", padx=2, pady=1)
+        n += 1  
 
     def open_settings():
-        global settings_open, settings_text_window, nowplaymode, settings_window
-        if settings_open:
+        global settings_opened, settings_text_window, nowplaymode, settings_window
+        if settings_opened:
             return
         
         def on_button():
-            global lasttrack, lastradio, nowplaymode
-            lasttrack = lastradio = nowplaymode = None
+            resetstatusdata()
             settings['t_button'] = button_var.get()
             save_settings(settings)
 
         def on_timewave():
-            global lasttrack, lastradio, nowplaymode
-            lasttrack = lastradio = nowplaymode = None
+            resetstatusdata()
             settings['w_time'] = timewave_var.get()
             save_settings(settings)
 
         def on_clearnodata():
-            global lasttrack, lastradio, nowplaymode
-            lasttrack = lastradio = nowplaymode = None
+            resetstatusdata()
             settings['n_clear'] = clearnodata_var.get()
             save_settings(settings)
 
         def on_timenodata():
-            global lasttrack, lastradio, nowplaymode
-            lasttrack = lastradio = nowplaymode = None
+            resetstatusdata()
             settings['n_time'] = timenodata_var.get()
             save_settings(settings)
 
@@ -292,90 +428,133 @@ def gui():
             save_settings(settings)
 
         def on_timerb():
-            global lasttrack, lastradio, nowplaymode
-            lasttrack = lastradio = nowplaymode = None
+            resetstatusdata()
             t_time = time_rbvar.get()
             settings['t_time'] = t_time
             save_settings(settings)
 
         def close_settings_window():
-            global settings_open
-            settings_open = False
+            global settings_opened
+            settings_opened = False
             settings_window.destroy()
-
+        def reset_settings():
+            global mainloop
+            settings = default.copy()
+            settings['on'] = False
+            save_settings(settings)
+            mainloop = False
+            window.quit()
         settings_window = tk.Toplevel(window)
         settings_window.title("Настройки")
-        settings_open = True
+        settings_opened = True
         settings_window.protocol("WM_DELETE_WINDOW", close_settings_window)
-        lbl = Label(settings_window, text="Производительность", font=("Arial Bold", 15))
-        lbl.grid(row=0, column=0, sticky="w")
+        lbl = Label(settings_window, text="Глобальные настройки", font=("Arial Bold", 17))
+        n = 0
+        lbl.grid(row=n, column=0, sticky="w")
+        n += 1
 
         updatecheck_var = tk.BooleanVar(value=settings.get('update', True))
         updatecheck = Checkbutton(settings_window, variable=updatecheck_var, text="Проверять обновления при запуске", command=on_updatecheck)
-        updatecheck.grid(row=1, column=0, sticky="w")
+        updatecheck.grid(row=n, column=0, sticky="w")
+        n += 1
 
         updateimage_var = tk.BooleanVar(value=settings.get('image', True))
         updateimage = Checkbutton(settings_window, variable=updateimage_var, text="Обновлять картинку в приложении (Не влияет на статус)", command=on_updateimage)
-        updateimage.grid(row=2, column=0, sticky="w")
-        
-        background_var = tk.BooleanVar(value=settings.get('background', False))
-        background = Checkbutton(settings_window, variable=background_var, text="Разрешить работу в фоновом режиме", command=on_background)
-        background.grid(row=3, column=0, sticky="w")
+        updateimage.grid(row=n, column=0, sticky="w")
+        n += 1
 
         lbl = Label(settings_window, text="Задержка между запросами (секунды)")
-        lbl.grid(row=4, column=0, sticky="w")
+        lbl.grid(row=n, column=0, sticky="w")
+        n += 1
 
         pingvar = tk.IntVar()
         pingvar.set(settings.get('ping', 1))
         ping = Spinbox(settings_window, textvariable=pingvar, from_=1, to=3, width=8, command=on_ping)
-        ping.grid(row=5, column=0, sticky="w", padx=2)
+        ping.grid(row=n, column=0, sticky="w", padx=2)
+        n += 1
 
-        lbl = Label(settings_window, text="Основные", font=("Arial Bold", 15))
-        lbl.grid(row=6, column=0, sticky="w")
+        background_var = tk.BooleanVar(value=settings.get('background', False))
+        background = Checkbutton(settings_window, variable=background_var, text="Разрешить работу в фоновом режиме", command=on_background)
+        background.grid(row=n, column=0, sticky="w")
+        n += 1
 
-        lbl = Label(settings_window, text="При окончании длинны трека: ")
-        lbl.grid(row=7, column=0, sticky="w")
+        lbl = Label(settings_window, text="Настройки статуса", font=("Arial Bold", 17))
+        lbl.grid(row=n, column=0, sticky="w")
+        n += 1
+
+        lbl = Label(settings_window, text="> Редакторы", font=("Arial Bold", 14))
+        lbl.grid(row=n, column=0, sticky="w")
+        n += 1
+        
+        btn = Button(settings_window, text="Открыть редактор статуса", command=open_status_window, width=40)  
+        btn.grid(row=n, column=0, sticky="w")
+        n += 1  
+
+        button_var = tk.BooleanVar(value=settings.get('t_button', True))
+        button = Checkbutton(settings_window, variable=button_var, text='Включить кнопки', command=on_button)
+        button.grid(row=n, column=0, sticky="w")
+        n += 1
+
+        btn = Button(settings_window, text="Открыть редактор кнопок", command=open_button_window, width=40)  
+        btn.grid(row=n, column=0, sticky="w")
+        n += 1  
+
+        lbl = Label(settings_window, text="> Трек и повтор", font=("Arial Bold", 14))
+        lbl.grid(row=n, column=0, sticky="w")
+        n += 1
+
+        lbl = Label(settings_window, text=">> Счётчик времени трека", font=("Arial Bold", 10))
+        lbl.grid(row=n, column=0, sticky="w")
+        n += 1
 
         time_rbvar = tk.IntVar()
         time_rbvar.set(settings.get('t_time'))
+        time_rb = Radiobutton(settings_window, variable=time_rbvar, text='Выключить счётчик', value=0, command=on_timerb)  
+        time_rb.grid(row=n, column=0, sticky="w")
+        n += 1
 
-        time_rb = Radiobutton(settings_window, variable=time_rbvar, text='Выключить время', value=0, command=on_timerb)  
-        time_rb.grid(row=8, column=0, sticky="w")
+        time_rb1 = Radiobutton(settings_window, variable=time_rbvar, text='По окончании начинать "Осталось" с начала', value=1, command=on_timerb)  
+        time_rb1.grid(row=n, column=0, sticky="w")
+        n += 1
 
-        time_rb1 = Radiobutton(settings_window, variable=time_rbvar, text='Автоповтор', value=1, command=on_timerb)  
-        time_rb1.grid(row=9, column=0, sticky="w")
+        time_rb2 = Radiobutton(settings_window, variable=time_rbvar, text='По окончаннии менять "Осталось" на "Прошло"', value=2, command=on_timerb)  
+        time_rb2.grid(row=n, column=0, sticky="w")
+        n += 1
 
-        time_rb2 = Radiobutton(settings_window, variable=time_rbvar, text='Смена на "Прошло"', value=2, command=on_timerb)  
-        time_rb2.grid(row=10, column=0, sticky="w")
-
-        button_var = tk.BooleanVar(value=settings.get('t_button', True))
-        button = Checkbutton(settings_window, variable=button_var, text='Отображать кнопку "Слушать"', command=on_button)
-        button.grid(row=11, column=0, sticky="w")
-
-        lbl = Label(settings_window, text="Поток", font=("Arial Bold", 15))
-        lbl.grid(row=12, column=0, sticky="w")
+        lbl = Label(settings_window, text="> Поток", font=("Arial Bold", 14))
+        lbl.grid(row=n, column=0, sticky="w")
+        n += 1
 
         timewave_var = tk.BooleanVar(value=settings.get('w_time', True))
         timewave = Checkbutton(settings_window, variable=timewave_var, text="Считать время при прослушивании потока", command=on_timewave)
-        timewave.grid(row=13, column=0, sticky="w")
+        timewave.grid(row=n, column=0, sticky="w")
+        n += 1
 
-        lbl = Label(settings_window, text="Основные", font=("Arial Bold", 15))
-        lbl.grid(row=14, column=0, sticky="w")
+        lbl = Label(settings_window, text="> Неизвестный трек", font=("Arial Bold", 14))
+        lbl.grid(row=n, column=0, sticky="w")
+        n += 1
         
         clearnodata_var = tk.BooleanVar(value=settings.get('n_clear', False))
         clearnodata = Checkbutton(settings_window, variable=clearnodata_var, text="Скрыть статус при неизвестном треке", command=on_clearnodata)
-        clearnodata.grid(row=15, column=0, sticky="w")
+        clearnodata.grid(row=n, column=0, sticky="w")
+        n += 1
 
         timenodata_var = tk.BooleanVar(value=settings.get('n_time', True))
         timenodata = Checkbutton(settings_window, variable=timenodata_var, text="Считать время при неизвестном треке", command=on_timenodata)
-        timenodata.grid(row=16, column=0, sticky="w")
+        timenodata.grid(row=n, column=0, sticky="w")
+        n += 1
 
-        lbl = Label(settings_window, text="[Настройки применяются автоматически]", font=("Arial Bold", 12))
-        lbl.grid(row=17, column=0, sticky="w")
+        lbl = Label(settings_window, text="*Эти настройки применяются автоматически", font=("Arial Bold", 12, "italic"))
+        lbl.grid(row=n, column=0, sticky="w")
+        n += 1
+
+        btn = Button(settings_window, text="Полный сброс настроек", command=reset_settings, width=40)  
+        btn.grid(row=n, column=0, sticky="w")
+        n += 1  
 
     def update_status():    
         global lasttrack, lastradio, nowplaymode, lastclick, rpc, app_var
-        lasttrack = lastradio = nowplaymode = None
+        resetstatusdata()
         if app_var.get():
             now = time() 
             last = now - lastclick
@@ -426,28 +605,19 @@ def gui():
 
     def quit_window(icon, item):
         global mainloop
-        if settings_text_open:
-            settings_text_window.destroy()
-            settings_text_open = False
-        if settings_open:
-            settings_window.destroy()
-            settings_open = False
-        if debug_opened:
-            deb_window.root.destroy()
-            debug_opened = False
+        show_window(icon, item)
         settings['on'] = False
         mainloop = False
-        show_window(icon, item)
-        window.destroy()
+        window.quit()
 
     def show_settings(icon, item):
         show_window(icon, item)
         open_settings()
 
     def show_window(icon, item):
-        global nowindow
+        global main_window_opened
         icon.stop()
-        nowindow = False
+        main_window_opened = False
         window.after(0,window.deiconify)
 
     def open_github_issues():
@@ -457,22 +627,24 @@ def gui():
         webbrowser.open("https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/")
 
     def withdraw_window():  
-        global need_notify, icon, settings_window, settings_text_window, settings_open, nowindow, settings_text_open, debug_opened, deb_window
-        if settings_text_open:
+        global need_notify, icon, settings_opened, main_window_opened, status_editor_opened, debug_opened
+        if status_editor_opened:
             settings_text_window.destroy()
-            settings_text_open = False
-        if settings_open:
+            status_editor_opened = False
+        if settings_opened:
             settings_window.destroy()
-            settings_open = False
+            settings_opened = False
         if debug_opened:
             deb_window.root.destroy()
             debug_opened = False
+        if button_editor_opened:
+            button_window.destroy()
         if settings.get('on', False) and settings.get('background'):
             name.set('Фоновый режим завершён')
             author.set('Данные обновятся при смене трека')
             if settings.get("image"):
                 change_image('https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Icon.png')
-            nowindow = True
+            main_window_opened = True
             window.withdraw()
             image = Image.open(icon_path)
             menu = (pystray.MenuItem('Открыть', show_window, default=True), pystray.MenuItem('Настройки', show_settings), pystray.MenuItem('GitHub', open_github), pystray.MenuItem('Выход', quit_window))
@@ -481,12 +653,13 @@ def gui():
             icon.run()
         else:
             global mainloop
-            window.destroy()
             settings['on'] = False
             mainloop = False
+            window.quit()
+
     window = tk.Tk()
     window.iconbitmap(icon_path)
-    window.minsize(250, 90)
+    window.minsize(270, 90)
     window.title(f"RPC {version}")
     app_var = tk.BooleanVar(value=settings.get('on', False))
     app_checkbox = Checkbutton(window, text="Подключиться", variable=app_var, command=update_status)
@@ -502,25 +675,21 @@ def gui():
     change_image('https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Icon.png')
 
     menu = tk.Menu(window)  
-    m = tk.Menu(menu, tearoff=0)  
-    m.add_command(label='Базовые настройки', command=open_settings)  
-    m.add_command(label='Редактор текста статуса', command=open_text_settings)  
-    menu.add_cascade(label='Настройки', menu=m) 
-    m = tk.Menu(menu, tearoff=0)  
-    m.add_command(label='Откладка', command=open_debug)  
-    m.add_command(label='Сообщить об ошибке', command=open_github_issues)  
-    menu.add_cascade(label='Откладка', men=m) 
-    window.config(menu=menu)  
+    menu.add_cascade(label='Настройки', command=open_settings)  
+    menu.add_cascade(label='Сообщить об ошибке', command=open_github_issues)  
+    menu.add_cascade(label='Debug', command=open_debug)  
+    window.config(menu=menu) 
+
     image_label.grid(row=0, column=0, rowspan=3, sticky="w", padx=5, pady=5)
     app_checkbox.grid(row=0, column=1, sticky="w", padx=5)
     name_label.grid(row=1, column=1, sticky="w", padx=5)
     author_label.grid(row=2, column=1, sticky="w", padx=5)
-    def on_drag_start(event):
+    def on_drag_start(event: tk.Event):
         global drag_data
         drag_data = {'x': event.x_root - window.winfo_x(), 'y': event.y_root - window.winfo_y()}
 
-    def on_drag_motion(event):
-        def move_window(event):
+    def on_drag_motion(event: tk.Event):
+        def move_window(event: tk.Event):
             window.geometry(f"+{event.x_root - drag_data['x']}+{event.y_root - drag_data['y']}")
         window.after(10, move_window, event)
 
@@ -533,7 +702,6 @@ def gui():
 def presense():
     global lasttrack, lastradio, nowplaymode, rpc, icon, need_notify, app_var
     lasttrack = lastradio = nowplaymode = None
-    client = getclient()
     song = API(client)
 
     while mainloop:
@@ -552,7 +720,7 @@ def presense():
                         if nowplaymode not in (2, 1):
                             rpc.update(song, settings)
                             if settings.get('on'):
-                                if not nowindow:
+                                if not main_window_opened:
                                     details = rpc.param_to_text(settings.get('tr_details'), song)
                                     state = rpc.param_to_text(settings.get('tr_state'), song)
                                     name.set(details)
@@ -566,7 +734,7 @@ def presense():
                             r_time = (time() - lastupdate)
                             if r_time >= song.total:
                                 rpc.repeat(song, settings, lastupdate)
-                                if not nowindow:
+                                if not main_window_opened:
                                     details = rpc.param_to_text(settings.get('re_details'), song)
                                     state = rpc.param_to_text(settings.get('re_state'), song)
                                     name.set(details)
@@ -578,9 +746,9 @@ def presense():
 
                     elif song.partdone and song.type and song.type == 'radio':
                             if song.description != lastradio:
-                                rpc.song(song=song, settings=settings)
+                                rpc.wave(song=song, settings=settings)
                                 if settings.get('on'):
-                                    if not nowindow:
+                                    if not main_window_opened:
                                         details = rpc.param_to_text(settings.get('ww_details'), song)
                                         state = rpc.param_to_text(settings.get('ww_state'), song)
                                         name.set(details)
@@ -591,10 +759,10 @@ def presense():
                                 nowplaymode = None
                     else:
                         if nowplaymode != 0:
-                            rpc.nodata(settings)
+                            rpc.nodata(settings, song)
                             nowplaymode = 0
                             if settings.get('on'):
-                                if not nowindow:
+                                if not main_window_opened:
                                     details = settings.get('no_details')
                                     state = settings.get('no_state')
                                     name.set(details)

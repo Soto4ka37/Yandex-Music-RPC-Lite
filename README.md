@@ -7,7 +7,6 @@
 - [Скачать (Последняя версия)](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/releases/latest)
 - [Скачать (Legacy версия)](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/releases/download/v7.2/RPC.exe)
 - [Сообщить об ошибке](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/issues/)
-- Если у вас бесконечная загрука скачайте [*эту*](https://www.soto4ka.space/file/debugged.exe) версию и сообщите ошибку, которая происходит при загрузке [*здесь*](https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/issues/)
 ## Основная информация
 - Поддержка работы в фоновом режиме
 - Добавлены интерфейс и визуальные настройки

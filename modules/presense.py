@@ -1,19 +1,17 @@
 from time import time
 from pypresence import Presence
 from modules.api import API
-from modules.debug import Debug
+import modules.debugger as debugger
 
 class RPC:
     def __init__(self):
-            debug = '[ПОДКЛЮЧЕНИЕ К ДИСКОРДУ]\n'
             try:
                 self.rpc = Presence(client_id=1116090392123822080)
                 self.rpc.connect()
-                debug = debug + 'Успешно подключено'
+                debugger.addRequest('Подключено к дискорду')
             except Exception as e:
                 self.rpc = None
-                debug = debug + f'Неудачно. Ошибка: {e}'
-            Debug.add(debug)
+                debugger.addError(f'Неудачная попытка подключения к дискорду. Исключение {str(e)}.')
 
     def __button(self, song: API, settings: dict, mode: str):
         t_button = settings.get('t_button', True)
@@ -73,7 +71,7 @@ class RPC:
             buttons=self.__button(song, settings, 'track'),
             end=end
         )
-        Debug.add(f'[DISCORD] [Обновлён статус]\n{song.name=}\n{song.authors=}\n{song.description=}')
+        debugger.addRequest(f'Установлен статус: {details=}, {state=}')
 
     def repeat(self, song: API, settings: dict, lastupdate):
         start = None
@@ -98,7 +96,7 @@ class RPC:
             end=end,
             start=start
         )   
-        Debug.add(f'[DISCORD] [Обновлён статус]\nРежим повтора активирован')
+        debugger.addRequest(f'Статус переключен на повтор текущего трека.')
 
     def wave(self, song: API, settings: dict):
         w_time = settings.get('w_time', True)
@@ -119,9 +117,9 @@ class RPC:
             buttons=self.__button(song, settings, 'wave'),
             start=start
         )
-        Debug.add(f'[DISCORD] [Обновлён статус]\n{song.name=}\n{song.authors=}\n{song.description=}')
+        debugger.addRequest(f'Установлен статус: {details=}, {state=}')
 
-    def nodata(self, song: API, settings: dict):
+    def nodata(self, settings: dict, song: API):
         n_clear = settings.get('n_clear', False)
         timestamp = int(time())
         details = settings.get('no_details')
@@ -138,11 +136,11 @@ class RPC:
             )
         else:
             self.rpc.clear()
-        Debug.add(f'[DISCORD] [Обновлён статус]\nНеизвестный трек')
+        debugger.addRequest(f'Установлен статус: {details=}, {state=}')
     def clear(self):
         self.rpc.clear()
-        Debug.add(f'[DISCORD] [Статус очищен]')
+        debugger.addRequest('Статус скрыт')
 
     def disconnect(self):
         self.rpc.close()
-        Debug.add(f'[DISCORD] Соединение разоравно пользователем')
+        debugger.addWarning(f'Пользователь разорвал соединение с дискордом. Переход в спящий режим.')

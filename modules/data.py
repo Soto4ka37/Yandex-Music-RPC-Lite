@@ -69,7 +69,7 @@ def check_settings() -> bool:
             settings = json.load(file)
         for key in default.keys():
             if key not in settings:
-                messagebox.showerror("Ошибка чтения сохранний", "Данные используемые программой повреждены или устарели. Настройки утеряны.")
+                messagebox.showerror("Ошибка чтения сохранений", "Данные используемые программой повреждены или устарели. Настройки утеряны.")
                 return False
         return True
     except (FileNotFoundError, json.JSONDecodeError):

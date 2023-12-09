@@ -1,6 +1,5 @@
-version = "v8.3"
+version = "v8.3.1"
 from time import sleep, time
-
 import traceback
 import os
 from threading import Thread
@@ -8,14 +7,12 @@ import pystray
 import webbrowser
 import requests
 import tkinter as tk
+from tkinter import messagebox
 from tkinter.ttk import Button, Spinbox, Radiobutton, Checkbutton, Label, Entry, Scrollbar
 from PIL import Image, ImageTk
 from io import BytesIO
-from platform import system, version as v
 
-
-from modules.debug import Debug
-Debug.add('[ОТКЛАДКА ЗАПУЩЕНА]')
+import modules.debugger as debugger
 from modules.data import save_settings, load_settings, get_icon, default, icon_path 
 from modules.api import getclient, API
 from modules.presense import RPC
@@ -30,7 +27,7 @@ lastclick = 0
 client = getclient()
 settings = load_settings()
 
-Debug.add(f"Запущено на {system()} {v()}")
+
 if not os.path.exists(icon_path):
     get_icon()
 
@@ -56,22 +53,30 @@ def gui():
                 self.root.title("Журнал отладки (Debug)")
 
                 self.text_area = tk.Text(root, wrap="word", state="normal", height=25, width=40)
-                initial_text = Debug.get_str()
+                initial_text = debugger.getString()
                 self.text_area.insert("0.9", initial_text)
                 self.text_area.config(state="disabled")
-                
+
                 scroll_y = Scrollbar(root, orient="vertical", command=self.text_area.yview)
                 scroll_y.grid(row=0, column=1, sticky="nsew")
                 self.text_area.config(yscrollcommand=scroll_y.set)
-                
-                copy_button = Button(root, text="Копировать", command=self.copy_text)
-                copy_button.grid(row=1, column=0, pady=5)
+
+                menu = tk.Menu(root)  
+                menu.add_cascade(label='Копировать', command=self.copy_text)  
+                menu.add_cascade(label='Обновить', command=self.update_text)  
+                root.config(menu=menu) 
+
                 root.grid_rowconfigure(0, weight=1)
                 root.grid_columnconfigure(0, weight=1)
                 self.text_area.grid(row=0, column=0, columnspan=2, sticky="nsew")
 
+                self.text_area.tag_configure("info", foreground="blue")
+                self.text_area.tag_configure("request", foreground="green")
+                self.text_area.tag_configure("warning", foreground="yellow")
+                self.text_area.tag_configure("error", foreground="red")
+
                 self.root.protocol("WM_DELETE_WINDOW", self.close)
-                self.update_text()
+                self.autoupdate_text_run()
 
             def close(self):
                 global debug_opened
@@ -82,13 +87,39 @@ def gui():
                 self.text_area.tag_add("sel", "1.0", "end")
                 self.text_area.focus_set()
                 self.text_area.event_generate("<<Copy>>")
+
             def update_text(self):
-                new_text = Debug.get_str()
-                self.text_area.config(state="normal")
-                self.text_area.delete("1.0", "end")
-                self.text_area.insert("1.0", new_text)
-                self.text_area.config(state="disabled")
-                self.root.after(5000, self.update_text)
+                new_text = debugger.getString()
+                if self.text_area.get("1.0", "end") != new_text:
+                    self.text_area.config(state="normal")
+                    self.text_area.delete("1.0", "end")
+                    self.text_area.insert("1.0", new_text)
+
+                    self.apply_background()
+
+                    self.text_area.config(state="disabled")
+
+            def autoupdate_text_run(self):
+                self.update_text()
+                self.root.after(60000, self.autoupdate_text_run)
+
+            def apply_background(self):
+                content = self.text_area.get("1.0", "end-1c").splitlines()
+
+                for i, line in enumerate(content):
+                    if "[I]" in line:
+                        self.text_area.tag_add(f"bg_{i}", f"{i + 1}.0", f"{i + 1}.end")
+                        self.text_area.tag_configure(f"bg_{i}", background="#30d5c8")
+                    elif "[R]" in line:
+                        self.text_area.tag_add(f"bg_{i}", f"{i + 1}.0", f"{i + 1}.end")
+                        self.text_area.tag_configure(f"bg_{i}", background="#65e665")
+                    elif "[W]" in line:
+                        self.text_area.tag_add(f"bg_{i}", f"{i + 1}.0", f"{i + 1}.end")
+                        self.text_area.tag_configure(f"bg_{i}", background="yellow")
+                    else:
+                        self.text_area.tag_add(f"bg_{i}", f"{i + 1}.0", f"{i + 1}.end")
+                        self.text_area.tag_configure(f"bg_{i}", background="#ff0033")
+
         if debug_opened:
             return
         debug = tk.Tk()
@@ -469,7 +500,7 @@ def gui():
 
         pingvar = tk.IntVar()
         pingvar.set(settings.get('ping', 1))
-        ping = Spinbox(settings_window, textvariable=pingvar, from_=1, to=3, width=8, command=on_ping)
+        ping = Spinbox(settings_window, textvariable=pingvar, from_=5, to=10, width=8, command=on_ping)
         ping.grid(row=n, column=0, sticky="w", padx=2)
         n += 1
 
@@ -627,7 +658,7 @@ def gui():
         webbrowser.open("https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/")
 
     def withdraw_window():  
-        global need_notify, icon, settings_opened, main_window_opened, status_editor_opened, debug_opened
+        global need_notify, icon, settings_opened, main_window_opened, status_editor_opened, button_editor_opened, debug_opened
         if status_editor_opened:
             settings_text_window.destroy()
             status_editor_opened = False
@@ -639,6 +670,7 @@ def gui():
             debug_opened = False
         if button_editor_opened:
             button_window.destroy()
+            button_editor_opened = False
         if settings.get('on', False) and settings.get('background'):
             name.set('Фоновый режим завершён')
             author.set('Данные обновятся при смене трека')
@@ -784,12 +816,17 @@ def presense():
                 app_var.set(False)
                 name.set('Соединение с Discord разорвано')
                 author.set('Пожалуйста переподключитесь')
-                Debug.add(f'[ОШИБКА]\nСоединение с дискордом разорвано\n{e}')
+                debugger.addWarning(f'Потеряна связь с дискордом: {e}')
             else:
                 error = traceback.format_exc()
-                error = f'[КРИТИЧЕСКАЯ ОШИБКА]\n{error}'
-                Debug.add(error)
-            sleep(2)
+                name.set('Критическая ошибка')
+                author.set('')
+                app_var.set(False)
+                rpc = None
+                if settings.get("image"):
+                    change_image('https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Icon.png')
+                debugger.addError(f'Непредвиденное исключение\n{error}')
+                messagebox.showerror('Yandex Music RPC | Непредвиденное исключение', message=f'{error}')
 
 if __name__ == "__main__":
     t1 = Thread(target=presense)

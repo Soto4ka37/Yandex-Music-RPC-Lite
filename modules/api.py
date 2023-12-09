@@ -2,12 +2,12 @@ from yandex_music import Client
 from tkinter import messagebox
 import sys
 from modules.data import save_settings, load_settings
-from modules.debug import Debug
+import modules.debugger as debugger
 
 def gettoken(settings: dict) -> str:
     token = settings.get('token')
     if not token or len(token) <= 3:
-        Debug.add('[USER]\nЗапущена функция получения токена\nЭто первый запуск?')
+        debugger.addInfo('Запущен процесс авторизации')
         try:
             from modules.token.wx import get_token
             token = get_token()
@@ -41,6 +41,7 @@ def getclient() -> Client:
 class API:
     def __init__(self, client: Client):
         self.client = client
+        self.now = None
 
     def update(self):
         try:
@@ -51,25 +52,28 @@ class API:
             try:
                 queue = self.client.queue(queue_list.id)
                 last_track_id = queue.get_current_track()
-                last_track = last_track_id.fetch_track()
-                duration = last_track.duration_ms
-                duration_min = (duration // (1000 * 60)) % 60
-                duration_sec = (duration // 1000) % 60
-                duration_raw = duration // 1000
-                album = last_track.albums
+                if last_track_id != self.now:
+                    self.now = last_track_id
+                    last_track = last_track_id.fetch_track()
+                    duration = last_track.duration_ms
+                    duration_min = (duration // (1000 * 60)) % 60
+                    duration_sec = (duration // 1000) % 60
+                    duration_raw = duration // 1000
+                    album = last_track.albums
 
-                self.type = 'track'
-                self.name = last_track.title
-                self.album = album[0].title
-                self.count = album[0].track_count
-                self.authors = ', '.join(last_track.artists_name())
-                self.link = f"https://music.yandex.ru/track/{last_track['id']}/"
-                self.icon = "https://" + last_track.cover_uri.replace("%%", "200x200")
-                self.minutes = duration_min
-                self.seconds = duration_sec
-                self.total = duration_raw
-                self.fulldone = True
-                self.error = None
+                    self.type = 'track'
+                    self.name = last_track.title
+                    self.album = album[0].title
+                    self.count = album[0].track_count
+                    self.authors = ', '.join(last_track.artists_name())
+                    self.link = f"https://music.yandex.ru/track/{last_track['id']}/"
+                    self.url = f"https://music.yandex.ru/track/{last_track['id']}/"
+                    self.icon = "https://" + last_track.cover_uri.replace("%%", "200x200")
+                    self.minutes = duration_min
+                    self.seconds = duration_sec
+                    self.total = duration_raw
+                    self.fulldone = True
+                    self.error = None
             except Exception as e:
                 if str(e) not in ('Timed out', 'None', 'Bad Gateway'):
                     self.fulldone = False
@@ -77,11 +81,13 @@ class API:
                     self.album = None
                     self.count = None
                     self.authors = None
-                    self.link = None
+                    self.link = 'https://music.yandex.ru/'
+                    self.urk = 'https://music.yandex.ru/'
                     self.icon = None
                     self.minutes = None
                     self.seconds = None
                     self.total = None
+                    self.now = None
         except:
             self.error = str(e)
             self.type = None

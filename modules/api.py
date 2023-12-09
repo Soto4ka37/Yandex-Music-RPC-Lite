@@ -34,6 +34,7 @@ def getclient() -> Client:
     try:
         client = Client(token)
     except:
+        settings['token'] = None
         token = gettoken(settings)
         client = Client(token)
     return client
@@ -82,14 +83,15 @@ class API:
                     self.count = None
                     self.authors = None
                     self.link = 'https://music.yandex.ru/'
-                    self.urk = 'https://music.yandex.ru/'
+                    self.url = 'https://music.yandex.ru/'
                     self.icon = None
-                    self.minutes = None
-                    self.seconds = None
-                    self.total = None
+                    self.minutes = 0
+                    self.seconds = 0
+                    self.total = 0
                     self.now = None
         except:
             self.error = str(e)
             self.type = None
+            self.now = None
             self.description = None
             self.partdone = False

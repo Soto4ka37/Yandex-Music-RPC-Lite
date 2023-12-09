@@ -47,11 +47,11 @@ def addError(text: str):
     _debug.append(text)
 
 def getList() -> list:
-    '''Возвращает откладку ввиде списка'''
+    '''Возвращает отладку ввиде списка'''
     return _debug
 
 def getString() -> str:
-    '''Возвращает откладку ввиде строки'''
+    '''Возвращает отладку ввиде строки'''
     return '\n'.join(_debug)
 
-addInfo('Откладка запущена.')
+addInfo('Отладка запущена.')

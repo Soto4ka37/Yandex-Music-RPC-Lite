@@ -4,7 +4,7 @@ import sys
 from modules.data import save_settings, load_settings
 import modules.debugger as debugger
 
-def gettoken(settings: dict) -> str:
+def updateToken(settings: dict) -> str:
     token = settings.get('token')
     if not token or len(token) <= 3:
         debugger.addInfo('Запущен процесс авторизации')
@@ -28,14 +28,20 @@ def gettoken(settings: dict) -> str:
                 sys.exit()   
     return token
 
-def getclient() -> Client:
+def getClient() -> Client:
     settings = load_settings()
-    token = gettoken(settings)
+    token = updateToken(settings)
     try:
-        client = Client(token)
+        client = Client(token).init()
+        if not client.accountStatus():
+            raise Exception('Неправльный токен')
     except:
-        token = gettoken(settings)
-        client = Client(token)
+        debugger.addWarning('Старый токен недействителен. Обновляю токен.')
+        settings['token'] = None
+        token = updateToken(settings)
+        client = Client(token).init()
+    status = client.accountStatus()
+    debugger.addInfo(f'Успешная авторизация! Подписка на плюс: {status.plus.has_plus}')
     return client
 
 class API:
@@ -82,14 +88,15 @@ class API:
                     self.count = None
                     self.authors = None
                     self.link = 'https://music.yandex.ru/'
-                    self.urk = 'https://music.yandex.ru/'
+                    self.url = 'https://music.yandex.ru/'
                     self.icon = None
-                    self.minutes = None
-                    self.seconds = None
-                    self.total = None
+                    self.minutes = 0
+                    self.seconds = 0
+                    self.total = 0
                     self.now = None
         except:
             self.error = str(e)
             self.type = None
+            self.now = None
             self.description = None
             self.partdone = False

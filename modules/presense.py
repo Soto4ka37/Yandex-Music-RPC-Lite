@@ -2,16 +2,19 @@ from time import time
 from pypresence import Presence
 from modules.api import API
 import modules.debugger as debugger
+import traceback
 
 class RPC:
     def __init__(self):
             try:
                 self.rpc = Presence(client_id=1116090392123822080)
                 self.rpc.connect()
+                self.exception = None
                 debugger.addRequest('Подключено к дискорду')
             except Exception as e:
+                self.exception = str(type(e).__name__)
                 self.rpc = None
-                debugger.addError(f'Неудачная попытка подключения к дискорду. Исключение {str(e)}.')
+                debugger.addError(f'Неудачная попытка подключения к дискорду. \n{traceback.format_exc()}')
 
     def __button(self, song: API, settings: dict, mode: str):
         t_button = settings.get('t_button', True)
@@ -46,7 +49,9 @@ class RPC:
         edited_text = edit(edited_text, "$name", str(song.name))
         edited_text = edit(edited_text, "$authors", str(song.authors))
         edited_text = edit(edited_text, "$album", str(song.album))
-        edited_text = edit(edited_text, "$count", str(song.count))
+        edited_text = edit(edited_text, "$album-count", str(song.album_count))
+        edited_text = edit(edited_text, "$now-track", str(song.now_track_in_queue))
+        edited_text = edit(edited_text, "$queue-count", str(song.count_tracks_in_queue))
         edited_text = edit(edited_text, "$minutes", str(song.minutes))
         edited_text = edit(edited_text, "$track-url", str(song.link))
         edited_text = edit(edited_text, "$seconds", str(song.seconds).zfill(2))

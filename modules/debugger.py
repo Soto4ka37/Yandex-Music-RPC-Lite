@@ -17,7 +17,6 @@ def lastTime() -> str:
     hours, remainder = divmod(time_difference.seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
     milliseconds = time_difference.microseconds // 1000
-
     result = []
     if hours > 0:
         result.append(f"{hours}ч")
@@ -25,8 +24,10 @@ def lastTime() -> str:
         result.append(f"{minutes}м")
     if seconds > 0 and not hours:
         result.append(f"{seconds}с")
-    if milliseconds > 0 and not minutes:
+    if milliseconds and not minutes:
         result.append(f"{milliseconds}мс")
+    if not result:
+        result.append('0мс')
 
     return ", ".join(result)
 
@@ -52,6 +53,6 @@ def getList() -> list:
 
 def getString() -> str:
     '''Возвращает отладку ввиде строки'''
-    return '\n'.join(_debug)
+    return '\n'.join(_debug) + '\n'
 
 addInfo('Отладка запущена.')

@@ -1,4 +1,4 @@
-version = "v8.3.2"
+version = "v8.4"
 from time import sleep, time
 import traceback
 import os

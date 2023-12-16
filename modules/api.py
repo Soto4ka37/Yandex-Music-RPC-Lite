@@ -1,10 +1,10 @@
 from yandex_music import Client, exceptions
 from tkinter import messagebox
 import sys
-from modules.data import save_settings, load_settings, settings_path
+from modules.data import save_settings, settings_path, settings
 import modules.debugger as debugger
 #import traceback
-def updateToken(settings: dict) -> str:
+def updateToken() -> str:
     token = settings.get('token')
     wxTokenError = None
     ChromeTokenError = None
@@ -38,8 +38,7 @@ def updateToken(settings: dict) -> str:
     return token
 
 def getClient() -> Client:
-    settings = load_settings()
-    token = updateToken(settings)
+    token = updateToken()
     try:
         client = Client(token).init()
         if not client or not client.accountStatus():
@@ -47,7 +46,7 @@ def getClient() -> Client:
     except Exception as e:
         debugger.addError('Неудачная авторизация!')
         settings['token'] = None
-        token = updateToken(settings)
+        token = updateToken()
         client = Client(token).init()
     status = client.accountStatus()
     debugger.addInfo(f'Успешная авторизация! Подписка на плюс: {status.plus.has_plus}')
@@ -91,8 +90,9 @@ class API:
                     self.album = album[0].title
                     self.album_count = album[0].track_count
                     self.authors = ', '.join(last_track.artists_name())
-                    self.link = f"https://music.yandex.ru/track/{last_track['id']}/"
-                    self.url = f"https://music.yandex.ru/track/{last_track['id']}/"
+                    self.link = f"https://music.yandex.ru/track/{last_track.id}/"
+                    self.url = f"https://music.yandex.ru/track/{last_track.id}/"
+                    self.album_url = f"https://music.yandex.ru/track/{album[0].id}/"
                     self.icon = "https://" + last_track.cover_uri.replace("%%", "200x200")
                     self.minutes = duration_min
                     self.seconds = duration_sec

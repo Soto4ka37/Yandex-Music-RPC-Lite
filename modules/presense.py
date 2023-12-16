@@ -3,6 +3,7 @@ from pypresence import Presence
 from modules.api import API
 import modules.debugger as debugger
 import traceback
+from modules.data import settings
 
 class RPC:
     def __init__(self):
@@ -10,13 +11,14 @@ class RPC:
                 self.rpc = Presence(client_id=1116090392123822080)
                 self.rpc.connect()
                 self.exception = None
+                self.success = True
                 debugger.addRequest('Подключено к дискорду')
             except Exception as e:
                 self.exception = str(type(e).__name__)
-                self.rpc = None
+                self.success = False
                 debugger.addError(f'Неудачная попытка подключения к дискорду. \n{traceback.format_exc()}')
 
-    def __button(self, song: API, settings: dict, mode: str):
+    def __button(self, song: API, mode: str):
         t_button = settings.get('t_button', True)
 
         buttons = []
@@ -53,11 +55,12 @@ class RPC:
         edited_text = edit(edited_text, "$now-track", str(song.now_track_in_queue))
         edited_text = edit(edited_text, "$queue-count", str(song.count_tracks_in_queue))
         edited_text = edit(edited_text, "$minutes", str(song.minutes))
+        edited_text = edit(edited_text, "$album-url", str(song.album_url))
         edited_text = edit(edited_text, "$track-url", str(song.link))
         edited_text = edit(edited_text, "$seconds", str(song.seconds).zfill(2))
         return edited_text
 
-    def update(self, song: API, settings: dict):
+    def update(self, song: API):
         end = None
         t_time = settings.get('t_time', 2)
         if t_time:
@@ -73,12 +76,12 @@ class RPC:
             small_text=small_text,
             large_image=song.icon,
             small_image='logo',
-            buttons=self.__button(song, settings, 'track'),
+            buttons=self.__button(song, 'track'),
             end=end
         )
         debugger.addRequest(f'Установлен статус: {details=}, {state=}')
 
-    def repeat(self, song: API, settings: dict, lastupdate):
+    def repeat(self, song: API, lastupdate):
         start = None
         end = None
         t_time = settings.get('t_time', 2)
@@ -97,13 +100,13 @@ class RPC:
             small_text=small_text,
             large_image=song.icon,
             small_image='repeat',
-            buttons=self.__button(song, settings, 'repeat'),
+            buttons=self.__button(song, 'repeat'),
             end=end,
             start=start
         )   
         debugger.addRequest(f'Статус переключен на повтор текущего трека.')
 
-    def wave(self, song: API, settings: dict):
+    def wave(self, song: API):
         w_time = settings.get('w_time', True)
         start = None
         if w_time:
@@ -119,12 +122,12 @@ class RPC:
             small_text=small_text,
             large_image='mywave',
             small_image='logo',
-            buttons=self.__button(song, settings, 'wave'),
+            buttons=self.__button(song, 'wave'),
             start=start
         )
         debugger.addRequest(f'Установлен статус: {details=}, {state=}')
 
-    def nodata(self, settings: dict, song: API):
+    def nodata(self, song: API):
         n_clear = settings.get('n_clear', False)
         timestamp = int(time())
         details = settings.get('no_details')
@@ -136,7 +139,7 @@ class RPC:
                 state=state, 
                 large_text=large_text,
                 large_image='logo',
-                buttons=self.__button(song, settings, 'nodata'),
+                buttons=self.__button(song, 'nodata'),
                 start=timestamp
             )
         else:

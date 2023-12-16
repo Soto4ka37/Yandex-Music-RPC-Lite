@@ -1,3 +1,4 @@
+version = 'v9.0'
 import json
 import os
 import requests
@@ -7,7 +8,7 @@ from tkinter import messagebox
 default = {
     "tr_details": "$name",
     "tr_state": "$authors",
-    "tr_large_image": "$album ($count треков)",
+    "tr_large_image": "$album ($album-count треков)",
     "tr_small_image": "$name ($minutes:$seconds)",
     "re_details": "$name",
     "re_state": "$authors",
@@ -34,7 +35,7 @@ default = {
     "b2_wave": False,
     "b2_nodata": False,
 
-    "ping": 1,
+    "ping": 5,
     "t_time": 2,
     "t_button": True,
     "w_time": True,
@@ -94,3 +95,5 @@ def get_icon():
                 file.write(response.content)
         else:
             sys.exit()
+
+settings = load_settings()

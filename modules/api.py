@@ -118,7 +118,10 @@ class API:
                     self.now = None
                 else:
                     debugger.addWarning('TimedOut: Яндекс слишком долго не отвечал на запрос.')
+                    self.update()
         except Exception as e:
-            if not isinstance(e, exceptions.TimedOutError):
+            if isinstance(e, exceptions.TimedOutError):
                 debugger.addWarning('TimedOut: Яндекс слишком долго не отвечал на запрос.')
+                self.update()
+            else:
                 raise e

@@ -6,28 +6,32 @@ if settings.get('update'):
     debugger.addInfo(f'Текущая версия программы: {version}')
     check_updates(version)
 
+from modules.tempdata import opened_windows, params
+
 from time import sleep, time
 import traceback
 import os
+import sys
 from threading import Thread
 from pypresence import exceptions
-from modules.api import getClient, API, NotQueue
 from tkinter import messagebox
-from modules.tempdata import opened_windows, params
-from modules.gui import open_gui
 
+from modules.api import getClient, API, NotQueue
+from modules.windows.main_window import run as open_gui
 client = getClient()
 
 if not os.path.exists(icon_path):
     get_icon()
 
 def yandex_music_rpc():
+    main_find = opened_windows.wait_main()
+    if not main_find:
+        return
     song = API(client)
-    while not params.exit or opened_windows.main:
-        if opened_windows.main:
-            if opened_windows.main.icon and params.need_notify:
-                opened_windows.main.icon.notify(title='Yandex Music RPC', message='Приложение работет в фоновом режиме')
-                params.need_notify = False
+    while not params.exit and opened_windows.main:
+        if opened_windows.main.icon and params.need_notify:
+            opened_windows.main.icon.notify(title='Yandex Music RPC', message='Приложение работет в фоновом режиме')
+            params.need_notify = False
         try:
             if params.rpc:
                 if settings.get("on"):

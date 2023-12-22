@@ -1,4 +1,6 @@
 from modules.presense import RPC
+from time import time, sleep
+
 class OpenedWidnows:
     def __init__(self):
         self.main = None
@@ -8,6 +10,17 @@ class OpenedWidnows:
         self.debugger = None
         self.main_hiden = False
 
+    def wait_main(self) -> bool:
+        timeout = 60
+        start_time = time()
+        
+        while time() - start_time < timeout:
+            if self.main is not None:
+                return True
+            sleep(1)
+
+        return False
+    
 class Params:
     def __init__(self):
         self.lastclick = 0

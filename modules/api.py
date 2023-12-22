@@ -98,6 +98,7 @@ class API:
                     self.seconds = duration_sec
                     self.total = duration_raw
                     self.fulldone = True
+                    self.partdone = False
             except Exception as e:
                 #print(traceback.format_exc())
                 if not isinstance(e, exceptions.TimedOutError):
@@ -111,6 +112,7 @@ class API:
                     self.authors = 'Неизвестно'
                     self.link = 'https://music.yandex.ru/'
                     self.url = 'https://music.yandex.ru/'
+                    self.album_url = 'https://music.yandex.ru/'
                     self.icon = 'https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Icon.png'
                     self.minutes = 0
                     self.seconds = 0
@@ -119,9 +121,7 @@ class API:
                 else:
                     debugger.addWarning('TimedOut: Яндекс слишком долго не отвечал на запрос.')
                     self.update()
-        except Exception as e:
-            if isinstance(e, exceptions.TimedOutError):
-                debugger.addWarning('TimedOut: Яндекс слишком долго не отвечал на запрос.')
-                self.update()
-            else:
-                raise e
+
+        except exceptions.TimedOutError:
+            debugger.addWarning('TimedOut: Яндекс слишком долго не отвечал на запрос.')
+            self.update()

@@ -38,12 +38,13 @@ class RPC:
         return buttons if buttons else None
 
     def param_to_text(self, text: str, song: API) -> str:
-        if not text:
+        if self.check_text_in_str(text) == None:
             return None
-        def edit(text, string, param):
+
+        def edit(text: str, check: str, param: str):
             if param:
-                if string in text:
-                    text = text.replace(string, param)
+                if check in text:
+                    text = text.replace(check, param)
             return text
 
         edited_text = text
@@ -59,6 +60,11 @@ class RPC:
         edited_text = edit(edited_text, "$track-url", str(song.link))
         edited_text = edit(edited_text, "$seconds", str(song.seconds).zfill(2))
         return edited_text
+    
+    def check_text_in_str(self, text: str) -> str | None:
+        if text == '':
+            return None
+        return text
 
     def update(self, song: API):
         end = None
@@ -130,9 +136,9 @@ class RPC:
     def nodata(self, song: API):
         n_clear = settings.get('n_clear', False)
         timestamp = int(time())
-        details = settings.get('no_details')
-        state = settings.get('no_state')
-        large_text = settings.get('no_large_image')
+        details = self.check_text_in_str(settings.get('no_details'))
+        state = self.check_text_in_str(settings.get('no_state'))
+        large_text = self.check_text_in_str(settings.get('no_large_image'))
         if not n_clear:
             self.rpc.update(
                 details=details,
@@ -151,4 +157,3 @@ class RPC:
 
     def disconnect(self):
         self.rpc.close()
-        debugger.addWarning(f'Пользователь разорвал соединение с дискордом. Переход в спящий режим.')

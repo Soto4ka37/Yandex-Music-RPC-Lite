@@ -1,11 +1,11 @@
 import pystray
-import webbrowser
 import requests
 import tkinter as tk
 from tkinter.ttk import Checkbutton, Label
 from PIL import Image, ImageTk
 from io import BytesIO
 from time import time
+from modules.open_webpage import ask_open
 
 from modules.data import save_settings, icon_path, version, settings
 from modules.tempdata import opened_windows, params
@@ -148,32 +148,17 @@ class MainWindow:
         self.root.after(0, self.root.deiconify)
 
     def open_github_issues(self):
-        webbrowser.open("https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/issues")
+        ask_open("https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/issues")
 
-    def open_github(self):
-        webbrowser.open("https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/")
+    def open_github(self, icon, item):
+        icon.stop()
+        self.icon = None
+        opened_windows.main_hiden = False
+        self.root.after(0, self.root.deiconify)
+        ask_open("https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/")
 
     def withdraw_window(self):  
-        debugger_widnow = opened_windows.debugger
-        status_editor_window = opened_windows.status_editor
-        button_editor_window = opened_windows.buttons_editor
-        settings_window = opened_windows.settings
-
-        if debugger_widnow:
-            debugger_widnow.root.destroy()
-            opened_windows.debugger = None
-            
-        if status_editor_window:
-            status_editor_window.root.destroy()
-            opened_windows.status_editor = None
-
-        if button_editor_window:
-            button_editor_window.root.destroy()
-            opened_windows.buttons_editor = None
-
-        if settings_window:
-            settings_window.root.destroy()
-            opened_windows.settings = None
+        opened_windows.close_sub_windows()
 
         if settings.get('on', False) and settings.get('background'):
             opened_windows.main_hiden = True
@@ -190,10 +175,7 @@ class MainWindow:
             self.icon = pystray.Icon("name", image, f"RPC {version}", menu)
             self.icon.run()
         else:
-            settings['on'] = False
-            params.exit = True
-            opened_windows.main = None
-            self.root.quit()
+            opened_windows.close_all()
 
 def run():
     main_window = tk.Tk()

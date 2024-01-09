@@ -61,6 +61,7 @@ class API:
         self.client = client
         self.now = None
         self.fulldone = None
+        self.partdone = None
 
     def update(self):
         try:

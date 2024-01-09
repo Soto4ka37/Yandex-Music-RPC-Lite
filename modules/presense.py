@@ -81,7 +81,7 @@ class RPC:
             large_text=large_text,
             small_text=small_text,
             large_image=song.icon,
-            small_image='logo',
+            small_image=settings.get('icon'),
             buttons=self.__button(song, 'track'),
             end=end
         )
@@ -105,7 +105,7 @@ class RPC:
             large_text=large_text,
             small_text=small_text,
             large_image=song.icon,
-            small_image='repeat',
+            small_image='https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Repeat.png',
             buttons=self.__button(song, 'repeat'),
             end=end,
             start=start
@@ -126,8 +126,8 @@ class RPC:
             state=state, 
             large_text=large_text,
             small_text=small_text,
-            large_image='mywave',
-            small_image='logo',
+            large_image='https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Wave.gif',
+            small_image=settings.get('icon'),
             buttons=self.__button(song, 'wave'),
             start=start
         )

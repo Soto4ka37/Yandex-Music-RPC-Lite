@@ -1,4 +1,4 @@
-version = 'v9.0'
+version = 'v9.1'
 import json
 import os
 import requests
@@ -35,6 +35,7 @@ default = {
     "b2_wave": False,
     "b2_nodata": False,
 
+    "icon": 'https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Default.png',
     "ping": 5,
     "t_time": 2,
     "t_button": True,

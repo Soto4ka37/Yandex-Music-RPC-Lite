@@ -1,4 +1,4 @@
-import webbrowser
+from modules.open_webpage import ask_open
 import tkinter as tk
 from tkinter.ttk import Button, Checkbutton, Label, Entry
 from modules.data import save_settings, settings
@@ -97,7 +97,7 @@ class ButtonEditor:
         opened_windows.buttons_editor = None
         self.root.destroy()
     def guide(self):
-        webbrowser.open("https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/tree/master/assets/guide.md")
+        ask_open("https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/tree/master/assets/guide.md")
     def save(self):
         params.reloadStatus()
         settings['first_button_label'] = self.first_button_label.get()

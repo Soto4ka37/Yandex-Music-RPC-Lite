@@ -1,4 +1,4 @@
-import webbrowser
+from modules.open_webpage import ask_open
 import tkinter as tk
 from tkinter.ttk import Button, Label, Entry
 from modules.data import settings
@@ -142,7 +142,7 @@ class StatusEditor:
         self.root.destroy()
 
     def guide(self):
-        webbrowser.open("https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/tree/master/assets/guide.md")
+        ask_open("https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/tree/master/assets/guide.md")
     def save(self):
         params.reloadStatus()
         settings['tr_details'] = self.tr_details.get()

@@ -1,9 +1,8 @@
 
 import tkinter as tk
 from tkinter.ttk import Scrollbar
-from time import time
 import modules.debugger as debugger
-from modules.tempdata import opened_windows, params
+from modules.tempdata import opened_windows
 
 class DebugWindow:
     def __init__(self, root: tk.Toplevel):

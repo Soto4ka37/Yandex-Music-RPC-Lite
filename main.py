@@ -18,7 +18,6 @@ from tkinter import messagebox
 
 from modules.api import getClient, API, NotQueue
 from modules.windows.main_window import run as open_gui
-client = getClient()
 
 if not os.path.exists(icon_path):
     get_icon()
@@ -27,7 +26,7 @@ def yandex_music_rpc():
     main_find = opened_windows.wait_main()
     if not main_find:
         return
-    song = API(client)
+    song = API(params.client)
     while not params.exit and opened_windows.main:
         if opened_windows.main.icon and params.need_notify:
             opened_windows.main.icon.notify(title='Yandex Music RPC', message='Приложение работет в фоновом режиме')

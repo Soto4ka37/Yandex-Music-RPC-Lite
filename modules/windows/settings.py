@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter.ttk import Button, Spinbox, Radiobutton, Checkbutton, Label
+from tkinter import messagebox
 from modules.data import save_settings, default, settings
 from modules.tempdata import opened_windows, params
 
@@ -43,6 +44,23 @@ class SettingsWidnow:
 
         lbl = Label(root, text="Настройки статуса", font=("Arial Bold", 17))
         lbl.grid(row=n, column=0, sticky="w")
+        n += 1
+
+        lbl = Label(root, text="> Иконка", font=("Arial Bold", 14))
+        lbl.grid(row=n, column=0, sticky="w")
+        n += 1
+
+        self.icon = tk.StringVar(value=settings.get('icon'))
+        time_rb = Radiobutton(root, variable=self.icon, text='Новая иконка', value='https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-New.png', command=self.on_timerb)  
+        time_rb.grid(row=n, column=0, sticky="w")
+        n += 1
+
+        time_rb1 = Radiobutton(root, variable=self.icon, text='Старая иконка', value='https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Default.png', command=self.on_timerb)  
+        time_rb1.grid(row=n, column=0, sticky="w")
+        n += 1
+
+        time_rb2 = Radiobutton(root, variable=self.icon, text='Скрыть иконку', value='', command=self.on_timerb)  
+        time_rb2.grid(row=n, column=0, sticky="w")
         n += 1
 
         lbl = Label(root, text="> Редакторы", font=("Arial Bold", 14))
@@ -151,16 +169,25 @@ class SettingsWidnow:
         settings['t_time'] = t_time
         save_settings(settings)
 
+    def on_icon(self):
+        params.reloadStatus()
+        icon = self.icon.get()
+        if icon == '':
+            icon = None
+        settings['icon'] = icon
+        save_settings(settings)
+
     def close(self):
         opened_windows.settings = None
         self.root.destroy()
 
     def reset_settings(self):
-        settings = default.copy()
-        settings['on'] = False
-        save_settings(settings)
-        params.exit = True
-        self.root.quit()
+        answer = messagebox.askquestion("Подтверждение", "Вы действительно хотите сбросить настройки?")
+        if answer == 'yes':
+            settings = default.copy()
+            settings['on'] = False
+            save_settings(settings)
+            opened_windows.close_all()
 
 def run():
     if opened_windows.settings:

@@ -51,16 +51,16 @@ class SettingsWidnow:
         n += 1
 
         self.icon = tk.StringVar(value=settings.get('icon'))
-        time_rb = Radiobutton(root, variable=self.icon, text='Новая иконка', value='https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-New.png', command=self.on_timerb)  
-        time_rb.grid(row=n, column=0, sticky="w")
+        iconB = Radiobutton(root, variable=self.icon, text='Новая иконка', value='https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-New.png', command=self.on_icon)  
+        iconB.grid(row=n, column=0, sticky="w")
         n += 1
 
-        time_rb1 = Radiobutton(root, variable=self.icon, text='Старая иконка', value='https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Default.png', command=self.on_timerb)  
-        time_rb1.grid(row=n, column=0, sticky="w")
+        iconB = Radiobutton(root, variable=self.icon, text='Старая иконка', value='https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Default.png', command=self.on_icon)  
+        iconB.grid(row=n, column=0, sticky="w")
         n += 1
 
-        time_rb2 = Radiobutton(root, variable=self.icon, text='Скрыть иконку', value='', command=self.on_timerb)  
-        time_rb2.grid(row=n, column=0, sticky="w")
+        iconB = Radiobutton(root, variable=self.icon, text='Скрыть иконку', value='', command=self.on_icon)  
+        iconB.grid(row=n, column=0, sticky="w")
         n += 1
 
         lbl = Label(root, text="> Редакторы", font=("Arial Bold", 14))
@@ -93,16 +93,21 @@ class SettingsWidnow:
         time_rb.grid(row=n, column=0, sticky="w")
         n += 1
 
-        time_rb1 = Radiobutton(root, variable=self.time_rbvar, text='По окончании начинать "Осталось" с начала', value=1, command=self.on_timerb)  
-        time_rb1.grid(row=n, column=0, sticky="w")
+        time_rb = Radiobutton(root, variable=self.time_rbvar, text='По окончании начинать "Осталось" с начала', value=1, command=self.on_timerb)  
+        time_rb.grid(row=n, column=0, sticky="w")
         n += 1
 
-        time_rb2 = Radiobutton(root, variable=self.time_rbvar, text='По окончаннии менять "Осталось" на "Прошло"', value=2, command=self.on_timerb)  
-        time_rb2.grid(row=n, column=0, sticky="w")
+        time_rb = Radiobutton(root, variable=self.time_rbvar, text='По окончаннии менять "Осталось" на "Прошло"', value=2, command=self.on_timerb)  
+        time_rb.grid(row=n, column=0, sticky="w")
         n += 1
 
         lbl = Label(root, text="> Поток", font=("Arial Bold", 14))
         lbl.grid(row=n, column=0, sticky="w")
+        n += 1
+
+        self.wave_animate_var = tk.BooleanVar(value=settings.get('wave_animated_icon', True))
+        wave_animate = Checkbutton(root, variable=self.wave_animate_var, text="Анимированная иконка", command=self.on_wave_animate)
+        wave_animate.grid(row=n, column=0, sticky="w")
         n += 1
 
         self.timewave_var = tk.BooleanVar(value=settings.get('w_time', True))
@@ -127,6 +132,7 @@ class SettingsWidnow:
         btn = Button(root, text="Полный сброс настроек", command=self.reset_settings)  
         btn.grid(row=n, column=0, sticky="ew")
         n += 1  
+        
     def on_button(self):
         params.reloadStatus()
         settings['t_button'] = self.button_var.get()
@@ -140,6 +146,15 @@ class SettingsWidnow:
     def on_clearnodata(self):
         params.reloadStatus()
         settings['n_clear'] = self.clearnodata_var.get()
+        save_settings(settings)
+
+    def on_wave_animate(self):
+        value = self.wave_animate_var
+        settings['wave_animated_icon'] = value
+        if value:
+            settings['wave_icon'] = 'https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Wave.gif'
+        else:
+            settings['wave_icon'] = 'https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Wave.png'
         save_settings(settings)
 
     def on_timenodata(self):

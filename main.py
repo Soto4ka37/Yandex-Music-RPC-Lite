@@ -16,7 +16,7 @@ from threading import Thread
 from pypresence import exceptions
 from tkinter import messagebox
 
-from modules.api import getClient, API, NotQueue
+from modules.api import API, NotQueue
 from modules.windows.main_window import run as open_gui
 
 if not os.path.exists(icon_path):
@@ -128,7 +128,7 @@ def yandex_music_rpc():
                         if params.nowplaymode == 0:
                             details = settings.get('no_details')
                             state = settings.get('no_state')
-                            image = 'https://music.yandex.ru/blocks/playlist-cover/playlist-cover_no_cover4.png'
+                            image = 'https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Wave.png'
                         elif params.nowplaymode == 1:
                             details = params.rpc.param_to_text(settings.get('tr_details'), song)
                             state = params.rpc.param_to_text(settings.get('tr_state'), song)

@@ -126,7 +126,7 @@ class RPC:
             state=state, 
             large_text=large_text,
             small_text=small_text,
-            large_image='https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Wave.gif',
+            large_image=settings.get('wave_icon'),
             small_image=settings.get('icon'),
             buttons=self.__button(song, 'wave'),
             start=start
@@ -144,7 +144,7 @@ class RPC:
                 details=details,
                 state=state, 
                 large_text=large_text,
-                large_image='logo',
+                large_image=settings.get('icon'),
                 buttons=self.__button(song, 'nodata'),
                 start=timestamp
             )

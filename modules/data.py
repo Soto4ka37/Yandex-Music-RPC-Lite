@@ -35,7 +35,9 @@ default = {
     "b2_wave": False,
     "b2_nodata": False,
 
-    "icon": 'https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Default.png',
+    "icon": 'https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-New.png',
+    "wave_icon": 'https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Wave.gif',
+    "wave_animated_icon": True,
     "ping": 5,
     "t_time": 2,
     "t_button": True,

@@ -149,6 +149,7 @@ class SettingsWidnow:
         save_settings(settings)
 
     def on_wave_animate(self):
+        params.reloadStatus()
         value = self.wave_animate_var.get()
         settings['wave_animated_icon'] = value
         if value:

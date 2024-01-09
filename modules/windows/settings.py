@@ -149,7 +149,7 @@ class SettingsWidnow:
         save_settings(settings)
 
     def on_wave_animate(self):
-        value = self.wave_animate_var
+        value = self.wave_animate_var.get()
         settings['wave_animated_icon'] = value
         if value:
             settings['wave_icon'] = 'https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Wave.gif'

@@ -1,4 +1,5 @@
 import pystray
+import ctypes
 import requests
 import tkinter as tk
 from tkinter.ttk import Checkbutton, Label
@@ -20,6 +21,7 @@ class MainWindow:
         root.iconbitmap(icon_path)
         root.minsize(280, 90)
         root.title(f"RPC {version}")
+        self.disable_maximize_button()
         self.connected = tk.BooleanVar(value=settings.get('on', False))
         app_checkbox = Checkbutton(root, text="Подключиться", variable=self.connected, command=self.update_status)
 
@@ -48,6 +50,12 @@ class MainWindow:
         root.bind("<Button-1>", self.on_drag_start)
         root.bind("<B1-Motion>", self.on_drag_motion)
 
+    def disable_maximize_button(self):
+        hwnd = ctypes.windll.user32.GetParent(self.root.winfo_id())
+
+        ctypes.windll.user32.SetWindowLongW(hwnd, ctypes.c_int(-16), ctypes.c_long(
+            ctypes.windll.user32.GetWindowLongW(hwnd, ctypes.c_int(-16)) & ~0x00010000))
+        
     def on_drag_start(self, event: tk.Event):
         self.drag_data = {'x': event.x_root - self.root.winfo_x(), 'y': event.y_root - self.root.winfo_y()}
 

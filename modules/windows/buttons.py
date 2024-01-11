@@ -17,6 +17,8 @@ class ButtonEditor:
     def __init__(self, root: tk.Toplevel):
         root.bind("<Key>", self.callback)
         self.root = root
+        self.root.geometry("330x365")
+        self.root.resizable(width=False, height=False)
         root.title("Редактор кнопок")
         root.protocol("WM_DELETE_WINDOW", self.close)
         n = 0

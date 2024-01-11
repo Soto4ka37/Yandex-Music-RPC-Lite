@@ -16,6 +16,8 @@ class SettingsWidnow:
         self.root = root
         self.root.title("Настройки")
         root.protocol("WM_DELETE_WINDOW", self.close)
+        self.root.geometry("300x400")
+        self.root.resizable(width=False, height=False)
 
         self.root.notebook = Notebook(self.root)
         self.root.notebook.pack()

@@ -17,7 +17,9 @@ class StatusEditor:
     def __init__(self, root: tk.Toplevel):
         root.bind("<Key>", self.callback)
         self.root = root
-        root.title("Редактор текста статуса")
+        self.root.geometry("370x480")
+        self.root.resizable(width=False, height=False)
+        root.title("Редактор статуса")
         root.protocol("WM_DELETE_WINDOW", self.close)
         n = 0
 

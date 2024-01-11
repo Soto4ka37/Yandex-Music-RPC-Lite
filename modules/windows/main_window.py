@@ -39,10 +39,10 @@ class MainWindow:
         menu.add_cascade(label='Отладка', command=open_debug)  
         root.config(menu=menu) 
 
-        self.image_label.grid(row=0, column=0, rowspan=3, sticky="w", padx=5, pady=5)
-        app_checkbox.grid(row=0, column=1, sticky="w", padx=5)
-        name_label.grid(row=1, column=1, sticky="w", padx=5)
-        author_label.grid(row=2, column=1, sticky="w", padx=5)
+        self.image_label.grid(row=0, column=0, rowspan=8, sticky="w", padx=5, pady=5)
+        app_checkbox.grid(row=1, column=1, sticky="w", padx=5, rowspan=2)
+        name_label.grid(row=3, column=1, sticky="w", padx=5, rowspan=2)
+        author_label.grid(row=5, column=1, sticky="w", padx=5, rowspan=2)
 
         root.protocol("WM_DELETE_WINDOW", self.withdraw_window)
         root.bind("<Button-1>", self.on_drag_start)

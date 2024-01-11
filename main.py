@@ -1,4 +1,4 @@
-from modules.data import save_settings, settings, get_icon, icon_path, version
+from modules.data import save_settings, settings, icon_path, version
 from modules.update import check_updates
 import modules.debugger as debugger
 
@@ -19,8 +19,6 @@ from tkinter import messagebox
 from modules.api import API, NotQueue
 from modules.windows.main_window import run as open_gui
 
-if not os.path.exists(icon_path):
-    get_icon()
 
 def yandex_music_rpc():
     main_find = opened_windows.wait_main()

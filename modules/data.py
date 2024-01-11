@@ -12,7 +12,7 @@ default = {
     "tr_small_image": "$name ($minutes:$seconds)",
     "re_details": "$name",
     "re_state": "$authors",
-    "re_large_image": "",
+    "re_large_image": "$album ($album-count треков)",
     "re_small_image": "Трек повторяется",
     "ww_details": "Играет поток",
     "ww_state": '"$radioname"',
@@ -51,21 +51,44 @@ default = {
     "token": "0"
 }
 
+appdata_path = os.getenv('APPDATA')
+work_dir = os.path.join(appdata_path, 'YM-RPC')
+if not os.path.exists(work_dir):
+        os.makedirs(work_dir)
 
-def get_icon_path() -> str:
-    appdata_path = os.getenv('APPDATA')
-    ym_rpc_dir = os.path.join(appdata_path, 'YM-RPC')
-    return os.path.join(ym_rpc_dir, 'icon.ico')
+def get_file(path: str, url: str):
+    if not os.path.exists(path):
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                with open(path, "wb") as file:
+                    file.write(response.content)
+            else:
+                sys.exit()
+        except:
+            sys.exit()
 
-def get_settings_path() -> str:
-    appdata_path = os.getenv('APPDATA')
-    ym_rpc_dir = os.path.join(appdata_path, 'YM-RPC')
-    if not os.path.exists(ym_rpc_dir):
-        os.makedirs(ym_rpc_dir)
-    return os.path.join(ym_rpc_dir, 'data.json')
+icons_dir = os.path.join(work_dir, 'icons')
+if not os.path.exists(icons_dir):
+        os.makedirs(icons_dir)
 
-icon_path = get_icon_path()
-settings_path = get_settings_path()
+new_image = os.path.join(icons_dir, 'new.png')
+if not os.path.exists(new_image):
+    get_file(new_image, "https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/IC-New.png")
+
+old_image = os.path.join(icons_dir, 'old.png')
+if not os.path.exists(old_image):
+    get_file(old_image, "https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/IC-Old.png")
+
+none_image = os.path.join(icons_dir, 'none.png')
+if not os.path.exists(none_image):
+    get_file(none_image, "https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/IC-None.png")
+
+icon_path = os.path.join(icons_dir, 'icon.ico')
+if not os.path.exists(icon_path):
+    get_file(icon_path, "https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Icon.ico")
+
+settings_path = os.path.join(work_dir, 'data.json')
 
 def check_settings() -> bool:
     try:
@@ -90,13 +113,5 @@ def save_settings(settings: dict):
     with open(settings_path, 'w') as file:
         json.dump(settings, file, indent=4)
 
-def get_icon():
-    if not os.path.exists(icon_path):
-        response = requests.get("https://raw.githubusercontent.com/Soto4ka37/Yandex-Music-RPC-Lite/master/assets/RPC-Icon.ico")
-        if response.status_code == 200:
-            with open(icon_path, "wb") as file:
-                file.write(response.content)
-        else:
-            sys.exit()
 
 settings = load_settings()

@@ -3,9 +3,19 @@ import tkinter as tk
 from tkinter.ttk import Button, Label, Entry
 from modules.data import settings
 from modules.tempdata import opened_windows, params
+import ctypes
 
+def check_en():
+    u = ctypes.windll.LoadLibrary("user32.dll")
+    pf = getattr(u, "GetKeyboardLayout")
+    if hex(pf(0)) == '0x4090409':
+        return True
+    else:
+        return False
+    
 class StatusEditor:
     def __init__(self, root: tk.Toplevel):
+        root.bind("<Key>", self.callback)
         self.root = root
         root.title("Редактор текста статуса")
         root.protocol("WM_DELETE_WINDOW", self.close)
@@ -137,12 +147,51 @@ class StatusEditor:
         txt = Entry(root, textvariable=self.no_large_image, width=40) 
         txt.grid(row=n, column=0, sticky="w", padx=2, pady=1)
         n += 1  
+
+    # если это кто-то читает это просто знайте:  
+    # ЕБУЧИЙ TKINTER НЕ ПОДДЕРЖИВАЕТ КОПИРОВАНИЕ И ВСТАВКУ НА ЛЮБЫХ ДРУГИХ РАСКЛАДКАХ ПОМИМО АНГИЙСКОГО
+    # Я ЭТУ ХУЙНЮ ПЫТАЛСЯ ДВА ЧАСА РЕШИТЬ
+
+    def callback(self, event):
+        if (event.state & 4 > 0):
+            if not check_en():
+                print(chr(event.keycode))
+                if chr(event.keycode) == "V":
+                    try:
+                        widget = event.widget
+                        if widget.select_present():
+                            widget.delete("sel.first", "sel.last")
+                        text_to_paste = self.root.clipboard_get()
+                        widget.insert(tk.INSERT, text_to_paste)
+                    except:
+                        pass
+                elif chr(event.keycode) == "C":
+                    try:
+                        widget = event.widget
+                        selected_text = widget.selection_get()
+                        if selected_text:
+                            self.root.clipboard_clear()
+                            self.root.clipboard_append(selected_text)
+                    except:
+                        pass
+                elif chr(event.keycode) == "X":
+                    try:
+                        widget = event.widget
+                        selected_text = widget.selection_get()
+                        if selected_text:
+                            widget.delete("sel.first", "sel.last")
+                            self.root.clipboard_clear()
+                            self.root.clipboard_append(selected_text)
+                    except:
+                        pass
+
     def close(self):
         opened_windows.status_editor = None
         self.root.destroy()
 
     def guide(self):
         ask_open("https://github.com/Soto4ka37/Yandex-Music-RPC-Lite/tree/master/assets/guide.md")
+
     def save(self):
         params.reloadStatus()
         settings['tr_details'] = self.tr_details.get()

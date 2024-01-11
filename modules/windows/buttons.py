@@ -176,6 +176,11 @@ class ButtonEditor:
 
 def run():
     if opened_windows.buttons_editor:
+        root: tk.Toplevel = opened_windows.buttons_editor.root
+        if root.state() == 'iconic':
+            root.deiconify()
+        elif root.state() == 'normal':
+            root.focus_force()
         return
     
     button_editor_window = tk.Toplevel()

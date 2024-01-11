@@ -1,4 +1,4 @@
-version = 'v9.1'
+version = 'v9.2'
 import json
 import os
 import requests

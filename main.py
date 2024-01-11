@@ -10,8 +10,6 @@ from modules.tempdata import opened_windows, params
 
 from time import sleep, time
 import traceback
-import os
-import sys
 from threading import Thread
 from pypresence import exceptions
 from tkinter import messagebox

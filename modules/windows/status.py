@@ -213,6 +213,11 @@ class StatusEditor:
         
 def run():
     if opened_windows.status_editor:
+        root: tk.Toplevel = opened_windows.status_editor.root
+        if root.state() == 'iconic':
+            root.deiconify()
+        elif root.state() == 'normal':
+            root.focus_force()
         return
     
     status_editor_window = tk.Toplevel()

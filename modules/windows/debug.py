@@ -76,6 +76,11 @@ class DebugWindow:
 
 def run():
     if opened_windows.debugger:
+        root: tk.Toplevel = opened_windows.debugger.root
+        if root.state() == 'iconic':
+            root.deiconify()
+        elif root.state() == 'normal':
+            root.focus_force()
         return
     
     debug_window = tk.Toplevel()

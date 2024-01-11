@@ -26,13 +26,15 @@ class SettingsWidnow:
         self.root.notebook.add(frame, text='Приложение')
 
         obj = Label(frame, text="Глобальные настройки", font=("Arial Bold", 18))
-        obj.grid(row=n, column=0, sticky="w", columnspan=3)
+        obj.grid(row=n, column=0, columnspan=3)
         n += 1
 
         self.ping_var = tk.IntVar(value=settings.get('ping', 1))
         obj = Spinbox(frame, textvariable=self.ping_var, from_=3, to=10, width=5, command=self.on_ping)
         obj.grid(row=n, column=0, sticky="w", padx=2)
-        lbl = Label(frame, text="Задержка между запросами (секунды)")
+        lbl = Label(frame, text="Задержка между запросами в секундах (?)")
+        self.pg_tooltip = ToolTip(obj, 'От 3 до 10')
+        self.pglb_tooltip = ToolTip(lbl, 'Промежуток между запросами на сервера яндекса и обновлением статуса (Производетельность)')
         lbl.grid(row=n, column=1, sticky="w")
         n += 1
 
@@ -44,7 +46,7 @@ class SettingsWidnow:
         self.updateimage_var = tk.BooleanVar(value=settings.get('image', True))
         obj = Checkbutton(frame, variable=self.updateimage_var, text="Предпросмотр иконки трека (?)", command=self.on_updateimage)
         obj.grid(row=n, column=0, sticky="w", columnspan=3)
-        self.ic_tooltip = ToolTip(obj, 'Изменение изображения находящегося левее кнопки подключиться (Не влияет на статус)')
+        self.ic_tooltip = ToolTip(obj, 'Обновление изображения находящегося левее кнопки подключиться (Не влияет на статус)')
         n += 1
 
         self.background_var = tk.BooleanVar(value=settings.get('background', False))
@@ -52,6 +54,10 @@ class SettingsWidnow:
         obj.grid(row=n, column=0, sticky="w", columnspan=3)
         self.bk_tooltip = ToolTip(obj, 'При нажатии на кнопку "X" приложение будет минимизировано в системный трей вместо того, чтобы полностью закрыться')
         n += 1
+
+        obj = Button(frame, text="Сброс настроек", command=self.reset_settings)  
+        obj.grid(row=n, column=0, sticky="ew", columnspan=3, padx=3)
+        n += 1  
 
         # НАСТРОЙКИ СТАТУСА
         frame = Frame(self.root.notebook)
@@ -70,7 +76,7 @@ class SettingsWidnow:
         n += 1  
 
         obj = Label(frame, text="> Логотип <", font=("Arial Bold", 15))
-        obj.grid(row=n, column=0, columnspan=6)
+        obj.grid(row=n, column=0, columnspan=6, pady=(10, 0))
         n += 1
 
         self.image_new = Image.open(new_image)
@@ -105,7 +111,7 @@ class SettingsWidnow:
 
 
         obj = Label(frame, text="> Основной счётчик времени < ", font=("Arial Bold", 15))
-        obj.grid(row=n, column=0, columnspan=6)
+        obj.grid(row=n, column=0, columnspan=6, pady=(10, 0))
         n += 1
 
         self.time_rbvar = tk.IntVar(value=settings.get('t_time'))
@@ -114,15 +120,15 @@ class SettingsWidnow:
 
         obj = Radiobutton(frame, variable=self.time_rbvar, text='Повтор (?)', value=1, command=self.on_timerb)  
         obj.grid(row=n, column=2, columnspan=2)
-        self.povt_tooltip = ToolTip(obj, 'При завершении трека начинать отсчет "Осталось" с начала')
+        self.povt_tooltip = ToolTip(obj, 'При завершении трека отсчет "Осталось" начинается с начала')
 
         obj = Radiobutton(frame, variable=self.time_rbvar, text='Умный (?)', value=2, command=self.on_timerb)  
         obj.grid(row=n, column=4, columnspan=2)
-        self.sm_tooltip = ToolTip(obj, 'При завершении трека заменять "Осталось" на "Прошло"')
+        self.sm_tooltip = ToolTip(obj, 'При завершении трека отсчёт "Осталось" меняется на "Прошло"')
         n += 1
 
         obj = Label(frame, text="> Поток <", font=("Arial Bold", 15))
-        obj.grid(row=n, column=0, columnspan=6)
+        obj.grid(row=n, column=0, columnspan=6, pady=(10, 0))
         n += 1
 
         self.wave_animate_var = tk.BooleanVar(value=settings.get('wave_animated_icon', True))
@@ -137,7 +143,7 @@ class SettingsWidnow:
         n += 1
 
         obj = Label(frame, text="> Нет данных <", font=("Arial Bold", 15))
-        obj.grid(row=n, column=0, columnspan=6)
+        obj.grid(row=n, column=0, columnspan=6, pady=(10, 0))
         n += 1
         
         self.clearnodata_var = tk.BooleanVar(value=settings.get('n_clear', False))
@@ -225,6 +231,11 @@ class SettingsWidnow:
 
 def run():
     if opened_windows.settings:
+        root: tk.Toplevel = opened_windows.settings.root
+        if root.state() == 'iconic':
+            root.deiconify()
+        elif root.state() == 'normal':
+            root.focus_force()
         return
     
     setting_window = tk.Toplevel()

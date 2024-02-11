@@ -1,0 +1,7 @@
+pystray
+requests
+yandex_music
+pillow
+pypresence
+selenium==4.8.1
+wxPython
